@@ -1,0 +1,14 @@
+DELIMITER $$
+CREATE PROCEDURE Get_patients()
+	SELECT * FROM patient
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE Get_Prescription(IN consult_id_input INT)
+SELECT consult_schedule AS 'Time', consult_date AS 'Date', consult_id AS 'Visit id', med_name AS 'Medicine name', instructions 
+FROM consult JOIN prescription 
+ON consult.prescription_id = prescription.prescription_id 
+JOIN prescription_meds ON prescription.prescription_id = prescription_meds.prescription_id 
+JOIN meds ON prescription_meds.med_id = meds.med_id
+WHERE consult_id_input = consult_id
+$$ DELIMITER ;

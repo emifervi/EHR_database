@@ -1,0 +1,196 @@
+
+/*---------------------------------------------------------------PATIENTS---------------------------------------------------------------------------------------*/
+INSERT INTO patient VALUES('1','Jose','Perez','M','JFPA520201','8129806590','Monterrey','Col. Buenavista','guillermo@gmail.com','1990-11-20');
+INSERT INTO patient VALUES('2','Alejandro','Manzanares','M','AFMM551205','8129806590','Monterrey','Col. Lindavista','manzanares@yahoo.com','1997-10-10');
+INSERT INTO patient VALUES('3','Montse','Aguayo','F','MMA651103','8123456897','Santiago','Col. Independencia','m_aguayo@hotmail.com','1983-04-23');
+INSERT INTO patient VALUES('4','Gustavo','Montreal','M','GFMA790918','84490289400','Allende','Col. Valleverde','mg79montreal@gmail.com','1970-11-07');
+INSERT INTO patient VALUES('5','Cecilia', 'Sancho', 'F', 'CSL820829', '8256382918','Santiago', 'Col. Las Palmas', 'arribayarriba@sancho.com', '1982-08-29');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------DOCTORS---------------------------------------------------------------------------------------*/
+INSERT INTO doctor VALUES('1', '34536043', 'Emilio', 'Villa', '8123456897');
+INSERT INTO doctor VALUES('2', '59328522', 'Guillermina', 'Juarez', '8123456897');
+INSERT INTO doctor VALUES('3', '68192093', 'Kurt', 'Fernádez', '8117676076');
+INSERT INTO doctor VALUES('4', '81092482', 'Ramon', 'Carballar', '4777632171');
+INSERT INTO doctor VALUES('5', '48439049', 'Kimberly', 'Elvira', '5549891022');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------MEDS------------------------------------------------------------------------------------------*/
+INSERT INTO meds VALUES('1', 'Abilify', 'Aripiprazol', '25 mg');
+INSERT INTO meds VALUES('2', 'Zyprexa', 'Olanzapina', '10 mg');
+INSERT INTO meds VALUES('3', 'Seroquel', 'Quetiapina', '300 mg');
+INSERT INTO meds VALUES('4', 'Risperdal', 'Risperidona', '2 mg');
+INSERT INTO meds VALUES('5', 'Geodon', 'Ziprasidona', '160 mg');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------PRESCRIPTION----------------------------------------------------------------------------------------*/
+INSERT INTO prescription VALUES ('1');
+INSERT INTO prescription VALUES ('2');
+INSERT INTO prescription VALUES ('3');
+INSERT INTO prescription VALUES ('4');
+INSERT INTO prescription VALUES ('5');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------PRESCRIPTION_MEDS-----------------------------------------------------------------------------------*/
+INSERT INTO prescription_meds VALUES ('1', '5', 'tomar una diaria durante 5 días');
+INSERT INTO prescription_meds VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
+INSERT INTO prescription_meds VALUES ('3', '3', 'tomar una en la noche y una en la manana');
+INSERT INTO prescription_meds VALUES ('4', '2', 'tomar antes y despues de cada comida' );
+INSERT INTO prescription_meds VALUES ('5', '1', 'tomar una cada 12 hrs');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------DSM5-------------------------------------------------------------------------------------------------*/
+INSERT INTO dsm5 VALUES ('1', 'V62.3', 'Z55.9', '0');
+INSERT INTO dsm5 VALUES ('770' , '295.7', 'F25.1', '1');
+INSERT INTO dsm5 VALUES ('870' , '995.83' , 'T76.21XA' , '0');
+INSERT INTO dsm5 VALUES ('891',	'V62.4', 'Z60.5', '0');
+INSERT INTO dsm5 VALUES ('955' , 'V40.31', 'Z91.83', '0');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------TEST-------------------------------------------------------------------------------------------------*/
+INSERT INTO test VALUES('1', 'Escala de depresión de Hamilton');
+INSERT INTO test VALUES('2', 'Escala de ansiedad de Hamilton');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------questions-------------------------------------------------------------------------------------------------*/
+/*Escala de depresión de Hamilton*/
+INSERT INTO questions VALUES('1' ,'1', 'Humor depresivo');
+INSERT INTO questions VALUES('2' ,'1', 'Sentimientos de culpa');
+INSERT INTO questions VALUES('3' ,'1', 'Suicidio');
+INSERT INTO questions VALUES('4' ,'1', 'Insomnio precoz');
+INSERT INTO questions VALUES('5' ,'1', 'Insomnio intermedio');
+INSERT INTO questions VALUES('6' ,'1', 'Insomnio tardío');
+INSERT INTO questions VALUES('7' ,'1', 'Trabajo y actividades');
+INSERT INTO questions VALUES('8' ,'1', 'Inhibición psicomotora');
+INSERT INTO questions VALUES('9' ,'1', 'Agitación psicomotra');
+INSERT INTO questions VALUES('10' ,'1', 'Ansiedad psíquica');
+INSERT INTO questions VALUES('11' ,'1', 'Ansiedad somática');
+INSERT INTO questions VALUES('12' ,'1', 'Síntomas somáticos gastrointestinales');
+INSERT INTO questions VALUES('13' ,'1', 'Síntomas somáticos generales');
+INSERT INTO questions VALUES('14' ,'1', 'Síntomas genitales');
+INSERT INTO questions VALUES('15' ,'1', 'Hipocondría');
+INSERT INTO questions VALUES('16' ,'1', 'Pérdida de peso');
+INSERT INTO questions VALUES('17' ,'1', 'Introspeccción (insight)');
+/*Escala de ansiedad de Hamilton*/
+INSERT INTO questions VALUES('18' ,'2', 'Estado de ánimo ansioso.');
+INSERT INTO questions VALUES('19' ,'2', 'Tensión.');
+INSERT INTO questions VALUES('20' ,'2', 'Temores.');
+INSERT INTO questions VALUES('21' ,'2', 'Insomnio.');
+INSERT INTO questions VALUES('22' ,'2', 'Intelectual (cognitivo).');
+INSERT INTO questions VALUES('23' ,'2', 'Estado de ánimo deprimido.');
+INSERT INTO questions VALUES('24' ,'2', 'Síntomas somáticos generales (musculares).');
+INSERT INTO questions VALUES('25' ,'2', 'Síntomas somáticos generales (sensoriales).');
+INSERT INTO questions VALUES('26' ,'2', 'Síntomas cardiovasculares.');
+INSERT INTO questions VALUES('27' ,'2', 'Síntomas respiratorios.');
+INSERT INTO questions VALUES('28' ,'2', 'Síntomas gastrointestinales.');
+INSERT INTO questions VALUES('29' ,'2', 'Síntomas genitourinarios.');
+INSERT INTO questions VALUES('30' ,'2', 'Síntomas autónomos.');
+INSERT INTO questions VALUES('31' ,'2', 'Comportamiento en la entrevista');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------test_instance----------------------------------------------------------------------------------------*/
+INSERT INTO test_instance VALUES('1','1','Total:', '23');
+INSERT INTO test_instance VALUES('2','1','Total:', '19');
+INSERT INTO test_instance VALUES('3','2','Total:', '22');
+INSERT INTO test_instance VALUES('4','2','Total:' , '24');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------answers----------------------------------------------------------------------------------------------*/
+/*Escala de depresión de Hamilton*/
+INSERT INTO answer VALUES('1' ,'1' ,'1', '1');
+INSERT INTO answer VALUES('2' ,'2' ,'1', '2');
+INSERT INTO answer VALUES('3' ,'3' ,'1', '2');
+INSERT INTO answer VALUES('4' ,'4' ,'1', '1');
+INSERT INTO answer VALUES('5' ,'5' ,'1', '2');
+INSERT INTO answer VALUES('6' ,'6' ,'1', '1');
+INSERT INTO answer VALUES('7' ,'7' ,'1', '0');
+INSERT INTO answer VALUES('8' ,'8' ,'1', '2');
+INSERT INTO answer VALUES('9' ,'9' ,'1', '1');
+INSERT INTO answer VALUES('10','10' ,'1','2');
+INSERT INTO answer VALUES('11','11' ,'1','2');
+INSERT INTO answer VALUES('12','12' ,'1','1');
+INSERT INTO answer VALUES('13','13' ,'1','2');
+INSERT INTO answer VALUES('14','14' ,'1','2');
+INSERT INTO answer VALUES('15','15' ,'1','1');
+INSERT INTO answer VALUES('16','16' ,'1','0');
+INSERT INTO answer VALUES('17','17' ,'1','1');
+		/*test2*/
+INSERT INTO answer VALUES('18' ,'1' ,'2','0');
+INSERT INTO answer VALUES('19' ,'2' ,'2','0');
+INSERT INTO answer VALUES('20' ,'3' ,'2','1');
+INSERT INTO answer VALUES('21' ,'4' ,'2','2');
+INSERT INTO answer VALUES('22' ,'5' ,'2','2');
+INSERT INTO answer VALUES('23' ,'6' ,'2','1');
+INSERT INTO answer VALUES('24' ,'7' ,'2','1');
+INSERT INTO answer VALUES('25' ,'8' ,'2','1');
+INSERT INTO answer VALUES('26' ,'9' ,'2','2');
+INSERT INTO answer VALUES('27', '10' ,'2','2');
+INSERT INTO answer VALUES('28' ,'11' ,'2','2');
+INSERT INTO answer VALUES('29' ,'12' ,'2','2');
+INSERT INTO answer VALUES('30' ,'13' ,'2','0');
+INSERT INTO answer VALUES('31' ,'14' ,'2','1');
+INSERT INTO answer VALUES('32' ,'15' ,'2','0');
+INSERT INTO answer VALUES('33' ,'16' ,'2','1');
+INSERT INTO answer VALUES('34' ,'17' ,'2','1');
+/*Escala de ansiedad de Hamilton*/
+	/*test 1*/
+INSERT INTO answer VALUES('35', '18' ,'3', '0');
+INSERT INTO answer VALUES('36', '19' ,'3', '1');
+INSERT INTO answer VALUES('37', '20' ,'3', '2');
+INSERT INTO answer VALUES('38', '21' ,'3', '3');
+INSERT INTO answer VALUES('39', '22' ,'3', '0');
+INSERT INTO answer VALUES('40', '23' ,'3', '4');
+INSERT INTO answer VALUES('41', '24' ,'3', '1');
+INSERT INTO answer VALUES('42', '25' ,'3', '2');
+INSERT INTO answer VALUES('43', '26' ,'3', '0');
+INSERT INTO answer VALUES('44', '27' ,'3', '3');
+INSERT INTO answer VALUES('45', '28' ,'3', '1');
+INSERT INTO answer VALUES('46', '29' ,'3', '2');
+INSERT INTO answer VALUES('47', '30' ,'3', '0');
+INSERT INTO answer VALUES('48', '31' ,'3', '3');
+	/*test 2*/
+INSERT INTO answer VALUES('49', '18' ,'4', '3');
+INSERT INTO answer VALUES('50', '19' ,'4', '2');
+INSERT INTO answer VALUES('51', '20' ,'4', '1');
+INSERT INTO answer VALUES('52', '21' ,'4', '4');
+INSERT INTO answer VALUES('53', '22' ,'4', '0');
+INSERT INTO answer VALUES('54', '23' ,'4', '4');
+INSERT INTO answer VALUES('55', '24' ,'4', '1');
+INSERT INTO answer VALUES('56', '25' ,'4', '2');
+INSERT INTO answer VALUES('57', '26' ,'4', '0');
+INSERT INTO answer VALUES('58', '27' ,'4', '3');
+INSERT INTO answer VALUES('59', '28' ,'4', '1')
+INSERT INTO answer VALUES('60', '29' ,'4', '2');
+INSERT INTO answer VALUES('61', '30' ,'4', '0');
+INSERT INTO answer VALUES('62', '31' ,'4', '1');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------consult----------------------------------------------------------------------------------------------*/
+INSERT INTO consult VALUES('1',	'1', '1', '1', '1',	'chequeo anual', '8:30', '2017-01-15');
+INSERT INTO consult VALUES('2',	'2', '2', '1', '2',	'sintomas agudizados', '15:20', '2017-03-09');
+INSERT INTO consult VALUES('3',	'3', '3', '3', '3',	'indicios de affeccion mental',	'19:40', '2017-04-16');
+INSERT INTO consult VALUES('4',	'4', '4', '3', '4',	'Intento de suicidio', '16:20' , '2017-06-08');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------DSM5_CONSULT-----------------------------------------------------------------------------------------*/
+INSERT INTO dsm5_consult VALUES('1', '1');
+INSERT INTO dsm5_consult VALUES('2', '870');
+INSERT INTO dsm5_consult VALUES('3', '770');
+INSERT INTO dsm5_consult VALUES('4', '955');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*
+LOADING ORDER:
+Patients
+Doctor
+Meds
+Prescriptions
+Prescription_meds
+dsm5
+test
+questions
+test_instance
+answers
+*/
