@@ -57,26 +57,12 @@ CREATE TABLE answer(
 	FOREIGN KEY (question_id) REFERENCES questions(question_id)
 );
 
-CREATE TABLE prescription(
-    prescription_id INT,
-    PRIMARY KEY (prescription_id)
-);
-
 CREATE TABLE meds(
     med_id INT,
     med_name VARCHAR(15) NOT NULL,
     ingredient VARCHAR(15) NOT NULL,
   	dose VARCHAR(8) NOT NULL,
     PRIMARY KEY (med_id)
-);
-
-CREATE TABLE prescription_meds( -- cambiar nombre de la tabla
-	med_id INT,
-	prescription_id INT,
-	instructions VARCHAR(40),
-	PRIMARY KEY (med_id, prescription_id),
-	FOREIGN KEY (med_id) REFERENCES meds(med_id),
-	FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id)
 );
 
 CREATE TABLE dsm5(
@@ -90,7 +76,6 @@ CREATE TABLE dsm5(
 CREATE TABLE consult(
  	consult_id INT,
 	instance_id INT, --mandar referencia a tabla test_instance
-	prescription_id INT, -- mandar referencia a tabla de prescription
 	patient_id INT NOT NULL,
 	doctor_id INT NOT NULL,
  	peea VARCHAR(100) NOT NULL,
@@ -109,6 +94,14 @@ CREATE TABLE dsm5_consult( -- cambiar nombre de la tabla
 	PRIMARY KEY (consult_id, dsm5_id),
   	FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
   	FOREIGN KEY (dsm5_id) REFERENCES dsm5(dsm5_id)
+);
+CREATE TABLE prescription_meds( -- cambiar nombre de la tabla
+	med_id INT,
+	consult_id INT,
+	instructions VARCHAR(40),
+	PRIMARY KEY (med_id, consult_id),
+	FOREIGN KEY (med_id) REFERENCES meds(med_id),
+	FOREIGN KEY (consult_id) REFERENCES prescription(consult_id)
 );
 COMMIT;
 
