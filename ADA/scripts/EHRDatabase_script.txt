@@ -43,7 +43,7 @@ CREATE TABLE dsm5(
 	PRIMARY KEY (dsm5_id)
 );
 
-CREATE TABLE diagonstic(
+CREATE TABLE diagnostic(
 	consult_id INT,
   	dsm5_id INT,
 	PRIMARY KEY (consult_id, dsm5_id),

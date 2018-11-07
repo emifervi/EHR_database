@@ -15,28 +15,11 @@ INSERT INTO doctor VALUES('4', '81092482', 'Ramon', 'Carballar', '4777632171');
 INSERT INTO doctor VALUES('5', '48439049', 'Kimberly', 'Elvira', '5549891022');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------MEDS------------------------------------------------------------------------------------------*/
-INSERT INTO meds VALUES('1', 'Abilify', 'Aripiprazol', '25 mg');
-INSERT INTO meds VALUES('2', 'Zyprexa', 'Olanzapina', '10 mg');
-INSERT INTO meds VALUES('3', 'Seroquel', 'Quetiapina', '300 mg');
-INSERT INTO meds VALUES('4', 'Risperdal', 'Risperidona', '2 mg');
-INSERT INTO meds VALUES('5', 'Geodon', 'Ziprasidona', '160 mg');
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------PRESCRIPTION----------------------------------------------------------------------------------------*/
-INSERT INTO prescription VALUES ('1');
-INSERT INTO prescription VALUES ('2');
-INSERT INTO prescription VALUES ('3');
-INSERT INTO prescription VALUES ('4');
-INSERT INTO prescription VALUES ('5');
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------PRESCRIPTION_MEDS-----------------------------------------------------------------------------------*/
-INSERT INTO recepie VALUES ('1', '5', 'tomar una diaria durante 5 días');
-INSERT INTO recepie VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
-INSERT INTO recepie VALUES ('3', '3', 'tomar una en la noche y una en la manana');
-INSERT INTO recepie VALUES ('4', '2', 'tomar antes y despues de cada comida' );
-INSERT INTO recepie VALUES ('5', '1', 'tomar una cada 12 hrs');
+/*----------------------------------------------------------CONSULT----------------------------------------------------------------------------------------------*/
+INSERT INTO consult VALUES('1',	'1', '1', 'chequeo anual', '8:30', '2017-01-15');
+INSERT INTO consult VALUES('2',	'2', '2', 'sintomas agudizados', '15:20', '2017-03-09');
+INSERT INTO consult VALUES('3',	'3', '3', 'indicios de affeccion mental', '19:40', '2017-04-16');
+INSERT INTO consult VALUES('4',	'4', '4', 'Intento de suicidio', '16:20', '2017-06-08');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------DSM5-------------------------------------------------------------------------------------------------*/
@@ -47,12 +30,41 @@ INSERT INTO dsm5 VALUES ('891',	'V62.4', 'Z60.5', '0');
 INSERT INTO dsm5 VALUES ('955' , 'V40.31', 'Z91.83', '0');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------DIAGNOSTIC-------------------------------------------------------------------------------------------*/
+INSERT INTO diagnostic VALUES('1', '1');
+INSERT INTO diagnostic VALUES('2', '870');
+INSERT INTO diagnostic VALUES('3', '770');
+INSERT INTO diagnostic VALUES('4', '955');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------MEDS------------------------------------------------------------------------------------------*/
+INSERT INTO meds VALUES('1', 'Abilify', 'Aripiprazol', '25 mg');
+INSERT INTO meds VALUES('2', 'Zyprexa', 'Olanzapina', '10 mg');
+INSERT INTO meds VALUES('3', 'Seroquel', 'Quetiapina', '300 mg');
+INSERT INTO meds VALUES('4', 'Risperdal', 'Risperidona', '2 mg');
+INSERT INTO meds VALUES('5', 'Geodon', 'Ziprasidona', '160 mg');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------PRESCRIPTION----------------------------------------------------------------------------------------*/
+INSERT INTO prescription VALUES ('1', '1');
+INSERT INTO prescription VALUES ('2', '2');
+INSERT INTO prescription VALUES ('3', '3');
+INSERT INTO prescription VALUES ('4', '1');
+INSERT INTO prescription VALUES ('5', '4');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------RECEPIE---------------------------------------------------------------------------------------------*/
+INSERT INTO recepie VALUES ('1', '5', 'tomar una diaria durante 5 días');
+INSERT INTO recepie VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
+INSERT INTO recepie VALUES ('3', '3', 'tomar una en la noche y una en la manana');
+INSERT INTO recepie VALUES ('4', '2', 'tomar antes y despues de cada comida' );
+INSERT INTO recepie VALUES ('5', '1', 'tomar una cada 12 hrs');
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------TEST-------------------------------------------------------------------------------------------------*/
 INSERT INTO test VALUES('1', 'Escala de depresión de Hamilton');
 INSERT INTO test VALUES('2', 'Escala de ansiedad de Hamilton');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
 
 /*----------------------------------------------------------questions-------------------------------------------------------------------------------------------------*/
 /*Escala de depresión de Hamilton*/
@@ -91,10 +103,10 @@ INSERT INTO questions VALUES('31' ,'2', 'Comportamiento en la entrevista');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------test_instance----------------------------------------------------------------------------------------*/
-INSERT INTO test_instance VALUES('1','1','Total:', '23');
-INSERT INTO test_instance VALUES('2','1','Total:', '19');
-INSERT INTO test_instance VALUES('3','2','Total:', '22');
-INSERT INTO test_instance VALUES('4','2','Total:' , '24');
+INSERT INTO test_instance VALUES('1', '1', '1', 'Total:', '23');
+INSERT INTO test_instance VALUES('2', '1', '1', 'Total:', '19');
+INSERT INTO test_instance VALUES('3', '2', '2', 'Total:', '22');
+INSERT INTO test_instance VALUES('4', '2', '2', 'Total:', '24');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------answers----------------------------------------------------------------------------------------------*/
@@ -161,37 +173,23 @@ INSERT INTO answer VALUES('55', '24' ,'4', '1');
 INSERT INTO answer VALUES('56', '25' ,'4', '2');
 INSERT INTO answer VALUES('57', '26' ,'4', '0');
 INSERT INTO answer VALUES('58', '27' ,'4', '3');
-INSERT INTO answer VALUES('59', '28' ,'4', '1')
+INSERT INTO answer VALUES('59', '28' ,'4', '1');
 INSERT INTO answer VALUES('60', '29' ,'4', '2');
 INSERT INTO answer VALUES('61', '30' ,'4', '0');
 INSERT INTO answer VALUES('62', '31' ,'4', '1');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------consult----------------------------------------------------------------------------------------------*/
-INSERT INTO consult VALUES('1',	'1', '1', '1', '1',	'chequeo anual', '8:30', '2017-01-15');
-INSERT INTO consult VALUES('2',	'2', '2', '1', '2',	'sintomas agudizados', '15:20', '2017-03-09');
-INSERT INTO consult VALUES('3',	'3', '3', '3', '3',	'indicios de affeccion mental',	'19:40', '2017-04-16');
-INSERT INTO consult VALUES('4',	'4', '4', '3', '4',	'Intento de suicidio', '16:20' , '2017-06-08');
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------diagnostic-------------------------------------------------------------------------------------------*/
-INSERT INTO diagnostic VALUES('1', '1');
-INSERT INTO diagnostic VALUES('2', '870');
-INSERT INTO diagnostic VALUES('3', '770');
-INSERT INTO diagnostic VALUES('4', '955');
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
 /*
 LOADING ORDER:
-Patients
-Doctor
-dsm5
-diagnostic
-meds
-prescription
-recepie
-test
-questions
-test_instance
-answers
+	Patients
+	Doctor
+	dsm5
+	diagnostic
+	meds
+	prescription
+	recepie
+	test
+	questions
+	test_instance
+	answers
 */
