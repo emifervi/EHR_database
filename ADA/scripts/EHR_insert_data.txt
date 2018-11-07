@@ -54,11 +54,11 @@ INSERT INTO prescription VALUES ('5', '4');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------RECEPIE---------------------------------------------------------------------------------------------*/
-INSERT INTO recepie VALUES ('1', '5', 'tomar una diaria durante 5 días');
-INSERT INTO recepie VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
-INSERT INTO recepie VALUES ('3', '3', 'tomar una en la noche y una en la manana');
-INSERT INTO recepie VALUES ('4', '2', 'tomar antes y despues de cada comida' );
-INSERT INTO recepie VALUES ('5', '1', 'tomar una cada 12 hrs');
+INSERT INTO recipe VALUES ('1', '5', 'tomar una diaria durante 5 días');
+INSERT INTO recipe VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
+INSERT INTO recipe VALUES ('3', '3', 'tomar una en la noche y una en la manana');
+INSERT INTO recipe VALUES ('4', '2', 'tomar antes y despues de cada comida' );
+INSERT INTO recipe VALUES ('5', '1', 'tomar una cada 12 hrs');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------TEST-------------------------------------------------------------------------------------------------*/

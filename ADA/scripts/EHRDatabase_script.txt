@@ -37,9 +37,9 @@ CREATE TABLE consult(
 
 CREATE TABLE dsm5(
 	dsm5_id INT,
-	icd10 VARCHAR(7) NOT NULL,
-  	idcd9 VARCHAR(9) NOT NULL,
-	frquent_diagnostic BIT NOT NULL,
+	icd10 CHAR(7) NOT NULL,
+  	idcd9 CHAR(9) NOT NULL,
+	frquent_diagnostic CHAR(1) NOT NULL,
 	PRIMARY KEY (dsm5_id)
 );
 
@@ -101,7 +101,7 @@ CREATE TABLE meds(
     PRIMARY KEY (med_id)
 );
 
-CREATE TABLE recepie(
+CREATE TABLE recipe(
 	med_id INT,
 	prescription_id INT,
 	instructions VARCHAR(40),
