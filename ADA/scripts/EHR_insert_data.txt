@@ -32,11 +32,11 @@ INSERT INTO prescription VALUES ('5');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------PRESCRIPTION_MEDS-----------------------------------------------------------------------------------*/
-INSERT INTO prescription_meds VALUES ('1', '5', 'tomar una diaria durante 5 días');
-INSERT INTO prescription_meds VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
-INSERT INTO prescription_meds VALUES ('3', '3', 'tomar una en la noche y una en la manana');
-INSERT INTO prescription_meds VALUES ('4', '2', 'tomar antes y despues de cada comida' );
-INSERT INTO prescription_meds VALUES ('5', '1', 'tomar una cada 12 hrs');
+INSERT INTO recepie VALUES ('1', '5', 'tomar una diaria durante 5 días');
+INSERT INTO recepie VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
+INSERT INTO recepie VALUES ('3', '3', 'tomar una en la noche y una en la manana');
+INSERT INTO recepie VALUES ('4', '2', 'tomar antes y despues de cada comida' );
+INSERT INTO recepie VALUES ('5', '1', 'tomar una cada 12 hrs');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------DSM5-------------------------------------------------------------------------------------------------*/
@@ -174,21 +174,22 @@ INSERT INTO consult VALUES('3',	'3', '3', '3', '3',	'indicios de affeccion menta
 INSERT INTO consult VALUES('4',	'4', '4', '3', '4',	'Intento de suicidio', '16:20' , '2017-06-08');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------DSM5_CONSULT-----------------------------------------------------------------------------------------*/
-INSERT INTO dsm5_consult VALUES('1', '1');
-INSERT INTO dsm5_consult VALUES('2', '870');
-INSERT INTO dsm5_consult VALUES('3', '770');
-INSERT INTO dsm5_consult VALUES('4', '955');
+/*----------------------------------------------------------diagnostic-------------------------------------------------------------------------------------------*/
+INSERT INTO diagnostic VALUES('1', '1');
+INSERT INTO diagnostic VALUES('2', '870');
+INSERT INTO diagnostic VALUES('3', '770');
+INSERT INTO diagnostic VALUES('4', '955');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*
 LOADING ORDER:
 Patients
 Doctor
-Meds
-Prescriptions
-Prescription_meds
 dsm5
+diagnostic
+meds
+prescription
+recepie
 test
 questions
 test_instance

@@ -23,12 +23,39 @@ CREATE TABLE doctor (
 	 PRIMARY KEY(doctor_id)
 );
 
-CREATE TABLE test(
-	test_id INT,
-	template_name VARCHAR(40) NOT NULL,
-	PRIMARY KEY (test_id)
+CREATE TABLE consult(
+ 	consult_id INT,
+	patient_id INT NOT NULL,
+	doctor_id INT NOT NULL,
+ 	peea VARCHAR(100) NOT NULL,
+	consult_schedule CHAR(5) NOT NULL,
+	consult_date DATE,
+	PRIMARY KEY(consult_id),
+	FOREIGN KEY(patient_id) REFERENCES patient(patient_id),
+	FOREIGN KEY(doctor_id) REFERENCES doctor(doctor_id)
 );
 
+CREATE TABLE dsm5(
+	dsm5_id INT,
+	icd10 VARCHAR(7) NOT NULL,
+  	idcd9 VARCHAR(9) NOT NULL,
+	frquent_diagnostic BIT NOT NULL,
+	PRIMARY KEY (dsm5_id)
+);
+
+CREATE TABLE diagonstic(
+	consult_id INT,
+  	dsm5_id INT,
+	PRIMARY KEY (consult_id, dsm5_id),
+  	FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
+  	FOREIGN KEY (dsm5_id) REFERENCES dsm5(dsm5_id)
+);
+
+CREATE TABLE test(
+	test_id INT,
+	test_name VARCHAR(40) NOT NULL,
+	PRIMARY KEY (test_id)
+);
 
 CREATE TABLE questions(
 	question_id INT,
@@ -41,10 +68,12 @@ CREATE TABLE questions(
 CREATE TABLE test_instance(
 	instance_id INT,
   	test_id INT,
+	consult_id INT,
 	result_description VARCHAR(30) NOT NULL,
 	result INT NOT NULL,
 	PRIMARY KEY (instance_id),
-  	FOREIGN KEY (test_id) REFERENCES test(test_id)
+  	FOREIGN KEY (test_id) REFERENCES test(test_id),
+	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
 );
 
 CREATE TABLE answer(
@@ -59,7 +88,9 @@ CREATE TABLE answer(
 
 CREATE TABLE prescription(
     prescription_id INT,
-    PRIMARY KEY (prescription_id)
+	consult_id INT,
+    PRIMARY KEY (prescription_id),
+	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
 );
 
 CREATE TABLE meds(
@@ -70,7 +101,7 @@ CREATE TABLE meds(
     PRIMARY KEY (med_id)
 );
 
-CREATE TABLE prescription_meds( -- cambiar nombre de la tabla
+CREATE TABLE recepie(
 	med_id INT,
 	prescription_id INT,
 	instructions VARCHAR(40),
@@ -79,37 +110,6 @@ CREATE TABLE prescription_meds( -- cambiar nombre de la tabla
 	FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id)
 );
 
-CREATE TABLE dsm5(
-	dsm5_id INT,
-	icd10 VARCHAR(7) NOT NULL,
-  	idcd9 VARCHAR(9) NOT NULL,
-	frquent_diagnostic BIT NOT NULL,
-	PRIMARY KEY (dsm5_id)
-);
-
-CREATE TABLE consult(
- 	consult_id INT,
-	instance_id INT, --mandar referencia a tabla test_instance
-	prescription_id INT, -- mandar referencia a tabla de prescription
-	patient_id INT NOT NULL,
-	doctor_id INT NOT NULL,
- 	peea VARCHAR(100) NOT NULL,
-	consult_schedule CHAR(5) NOT NULL,
-	consult_date DATE,
-	PRIMARY KEY(consult_id),
-	FOREIGN KEY(patient_id) REFERENCES patient(patient_id),
-	FOREIGN KEY(doctor_id) REFERENCES doctor(doctor_id),
-	FOREIGN KEY(prescription_id) REFERENCES prescription(prescription_id),
-	FOREIGN KEY(instance_id) REFERENCES test_instance(instance_id)
-);
-
-CREATE TABLE dsm5_consult( -- cambiar nombre de la tabla
-	consult_id INT,
-  	dsm5_id INT,
-	PRIMARY KEY (consult_id, dsm5_id),
-  	FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
-  	FOREIGN KEY (dsm5_id) REFERENCES dsm5(dsm5_id)
-);
 COMMIT;
 
 
