@@ -1,0 +1,39 @@
+// Patinents
+patient_id,first_name,last_name,sex,rfc,phone,city,street_address,email,date_of_birth
+// Doctor
+doctor_id,license,first_name,last_name,phone
+// consult
+consult_id,patient_id,doctor_id,peea,consult_schedule,consult_date
+// Disease catalog
+disease_catalog_id,icd10,icd9,frequent_diagnostic,description
+// Diagnostic
+consult_id,disease_catalog_id
+// Medicine
+medicine_id,medicine_name,ingredient,dose
+// Prescription
+prescription_id,consult_id
+// Recipe
+medicine_id,prescription_id,instructions
+// Test
+test_id,test_name
+// Questions
+question_id,test_id,question
+// Test instance
+instance_id,test_id,consult_id,result_description,result
+// Answers
+answer_id,question_id,instance_id,answer_value
+
+/*
+LOADING ORDER:
+	Patients
+	Doctor
+	disease_catalog
+	diagnostic
+	medicine
+	prescription
+	recipe
+	test
+	questions
+	test_instance
+	answers
+*/

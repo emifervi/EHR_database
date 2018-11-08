@@ -35,20 +35,21 @@ CREATE TABLE consult(
 	FOREIGN KEY(doctor_id) REFERENCES doctor(doctor_id)
 );
 
-CREATE TABLE dsm5(
-	dsm5_id INT,
-	icd10 CHAR(7) NOT NULL,
-  	idcd9 CHAR(9) NOT NULL,
-	frquent_diagnostic CHAR(1) NOT NULL,
-	PRIMARY KEY (dsm5_id)
+CREATE TABLE disease_catalog(
+	disease_catalog_id INT,
+	icd10 CHAR(7),
+  	icd9 CHAR(9),
+	frequent_diagnostic CHAR(1),
+	description VARCHAR(150),
+	PRIMARY KEY (disease_catalog_id)
 );
 
 CREATE TABLE diagnostic(
 	consult_id INT,
-  	dsm5_id INT,
-	PRIMARY KEY (consult_id, dsm5_id),
+  	disease_catalog_id INT,
+	PRIMARY KEY (consult_id, disease_catalog_id),
   	FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
-  	FOREIGN KEY (dsm5_id) REFERENCES dsm5(dsm5_id)
+  	FOREIGN KEY (disease_catalog_id) REFERENCES disease_catalog(disease_catalog_id)
 );
 
 CREATE TABLE test(
@@ -93,23 +94,21 @@ CREATE TABLE prescription(
 	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
 );
 
-CREATE TABLE meds(
-    med_id INT,
-    med_name VARCHAR(15) NOT NULL,
+CREATE TABLE medicine(
+    medicine_id INT,
+    medicine_name VARCHAR(15) NOT NULL,
     ingredient VARCHAR(15) NOT NULL,
   	dose VARCHAR(8) NOT NULL,
-    PRIMARY KEY (med_id)
+    PRIMARY KEY (medicine_id)
 );
 
 CREATE TABLE recipe(
-	med_id INT,
+	medicine_id INT,
 	prescription_id INT,
 	instructions VARCHAR(40),
-	PRIMARY KEY (med_id, prescription_id),
-	FOREIGN KEY (med_id) REFERENCES meds(med_id),
+	PRIMARY KEY (medicine_id, prescription_id),
+	FOREIGN KEY (medicine_id) REFERENCES medicine(medicine_id),
 	FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id)
 );
 
 COMMIT;
-
-

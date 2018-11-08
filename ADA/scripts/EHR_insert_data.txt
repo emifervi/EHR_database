@@ -37,12 +37,12 @@ INSERT INTO diagnostic VALUES('3', '770');
 INSERT INTO diagnostic VALUES('4', '955');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------MEDS------------------------------------------------------------------------------------------*/
-INSERT INTO meds VALUES('1', 'Abilify', 'Aripiprazol', '25 mg');
-INSERT INTO meds VALUES('2', 'Zyprexa', 'Olanzapina', '10 mg');
-INSERT INTO meds VALUES('3', 'Seroquel', 'Quetiapina', '300 mg');
-INSERT INTO meds VALUES('4', 'Risperdal', 'Risperidona', '2 mg');
-INSERT INTO meds VALUES('5', 'Geodon', 'Ziprasidona', '160 mg');
+/*-----------------------------------------------------------------MEDICINE------------------------------------------------------------------------------------------*/
+INSERT INTO medicine VALUES('1', 'Abilify', 'Aripiprazol', '25 mg');
+INSERT INTO medicine VALUES('2', 'Zyprexa', 'Olanzapina', '10 mg');
+INSERT INTO medicine VALUES('3', 'Seroquel', 'Quetiapina', '300 mg');
+INSERT INTO medicine VALUES('4', 'Risperdal', 'Risperidona', '2 mg');
+INSERT INTO medicine VALUES('5', 'Geodon', 'Ziprasidona', '160 mg');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------PRESCRIPTION----------------------------------------------------------------------------------------*/
@@ -57,7 +57,7 @@ INSERT INTO prescription VALUES ('5', '4');
 INSERT INTO recipe VALUES ('1', '5', 'tomar una diaria durante 5 días');
 INSERT INTO recipe VALUES ('2', '4', 'aumentar iterativamente en dosis de 5 mg');
 INSERT INTO recipe VALUES ('3', '3', 'tomar una en la noche y una en la manana');
-INSERT INTO recipe VALUES ('4', '2', 'tomar antes y despues de cada comida' );
+INSERT INTO recipe VALUES ('4', '2', 'tomar antes y despues de cada comida');
 INSERT INTO recipe VALUES ('5', '1', 'tomar una cada 12 hrs');
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -183,11 +183,12 @@ INSERT INTO answer VALUES('62', '31' ,'4', '1');
 LOADING ORDER:
 	Patients
 	Doctor
-	dsm5
+	CONSULT
+	disease_catalog
 	diagnostic
 	meds
 	prescription
-	recepie
+	recipe
 	test
 	questions
 	test_instance
