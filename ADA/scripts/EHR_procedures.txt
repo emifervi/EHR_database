@@ -47,7 +47,6 @@ JOIN prescription p
 ON c.prescription_id = p.prescription_id
 WHERE c.patient_id = 1);
 
-
 /* 4.Borrar de la tabla prescription todas las consultas donde el paciente es 1*/
 DELETE FROM prescription
 WHERE consult_id IN
@@ -74,31 +73,11 @@ DELETE FROM patient
 WHERE patient_id = 1;
 $$ DELIMITER ;
 
-/*
-1. Patient Name and diagnosis for all patients "Perez"  (Perez is a parameter)
-    Nombre del paciente y nombre del diagnostico para los pacientes Perez
-2. Diagnosis Name  and number of times in descending order of times
-    Nombre del  diagnostico y numero de veces que se ha diagnosticado, ordenado del mas a menos frecuencia
-3. Nombre del paciente y Numero de visitas ordenado por nombre del paciente
-    Patient Name and Number of visits ordered by patient name 
-4. Display a Anxiety Test
-5. Display a Depression Test
-6. Display the complete  EHR of a patient ( ADA )
-*/
 
 
 
-DELIMITER $$
-CREATE PROCEDURE(IN first_name_input VARCHAR(20))
 
-$$ DELIMITER ;
 
-DELIMITER $$
-CREATE PROCEDURE(IN first_name_input VARCHAR(20))
 
-$$ DELIMITER ;
 
-DELIMITER $$
-CREATE PROCEDURE(IN first_name_input VARCHAR(20))
 
-$$ DELIMITER ;
