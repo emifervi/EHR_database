@@ -1,4 +1,6 @@
-
+/*
+		THIS IS NOT BEING USED ANYMORE, SINCE WE HAVE CSV FILES THAT CAN BE IMPORTED DIRECTLY TO MYSQL
+*/
 /*---------------------------------------------------------------PATIENTS---------------------------------------------------------------------------------------*/
 INSERT INTO patient VALUES('1','Jose','Perez','M','JFPA520201','8129806590','Monterrey','Col. Buenavista','guillermo@gmail.com','1990-11-20');
 INSERT INTO patient VALUES('2','Alejandro','Manzanares','M','AFMM551205','8129806590','Monterrey','Col. Lindavista','manzanares@yahoo.com','1997-10-10');
