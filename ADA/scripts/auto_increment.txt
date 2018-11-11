@@ -1,0 +1,14 @@
+/*ADDS AUTO_INCREMENT TO THE FOLLOWING TABLES:*/
+
+
+-- Patient Table
+ALTER TABLE consult
+	DROP FOREIGN KEY consult_ibfk_1,
+    MODIFY patient_id INT NOT NULL;
+    
+ALTER TABLE patient
+	MODIFY patient_id INT AUTO_INCREMENT;
+    
+ALTER TABLE consult
+	ADD CONSTRAINT consult_ibfk_1 FOREIGN KEY (patient_id)
+	REFERENCES patient(patient_id)
