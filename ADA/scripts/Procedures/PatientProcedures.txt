@@ -95,12 +95,13 @@ WHERE consult_id IN (
 
 /* 7. Borrar de la tabla paciente donde el paciente es in_patient_id */
 	DELETE FROM patient
-	WHERE patient_id = in_patient_id;
+	WHERE patient_id = in_patient_id;	
 
 	SELECT Max(patient_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4', ' ' AS '5', ' ' AS '6', ' ' AS '7', ' ' AS '8', ' ' AS '9'
 	FROM patient;
 COMMIT;
 END
+
 $$ DELIMITER ;
 
 /* -----------------------------------------Borrar paciente(first_name) -----------------------------------------*/

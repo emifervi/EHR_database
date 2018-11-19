@@ -64,10 +64,10 @@ CREATE PROCEDURE delete_doctor(IN in_doctor_id)
 BEGIN
 START TRANSACTION;
 DELETE FROM consult
-WHERE consult.doctor_id = in_doctor_id
+WHERE consult.doctor_id = in_doctor_id;
 
 DELETE FROM doctor
-WHERE doctor.doctor_id = in_doctor_id
+WHERE doctor.doctor_id = in_doctor_id;
 
 SELECT Max(doctor_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4'
 FROM doctor
