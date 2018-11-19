@@ -1,0 +1,201 @@
+DELIMITER $$
+CREATE PROCEDURE get_test_instance(IN in_instance_id INT)
+SELECT Question, answer_value AS 'Answer'
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE test_instance.instance_id = in_instance_id AND answer.question_id = questions.question_id
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE get_test()
+SELECT test_id, test_name
+FROM test
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE get_test_instances_by_patient(IN in_test_id INT, IN in_patient_id INT)
+SELECT instance_id AS 'ID', consult_date AS 'DATE'
+FROM test JOIN test_instance ON test.test_id = test_instance.test_id
+JOIN consult ON test_instance.consult_id = consult.consult_id
+JOIN patient ON consult.patient_id = patient.patient_id
+WHERE test.test_id = in_test_id AND patient.patient_id = in_patient_id
+$$ DELIMITER ; 
+
+
+DELIMITER $$
+CREATE PROCEDURE create_anxiety_test(
+        IN in_instance_id INT,
+        IN in_test_id INT,
+        IN in_consult_id INT,
+        IN in_result_description VARCHAR(30),
+        IN in_result INT,
+        IN in_answer_id_1 INT,
+        IN in_answer_id_2 INT,
+        IN in_answer_id_3 INT,
+        IN in_answer_id_4 INT,
+        IN in_answer_id_5 INT,
+        IN in_answer_id_6 INT,
+        IN in_answer_id_7 INT,
+        IN in_answer_id_8 INT,
+        IN in_answer_id_9 INT,
+        IN in_answer_id_10 INT,
+        IN in_answer_id_11 INT,
+        IN in_answer_id_12 INT,
+        IN in_answer_id_13 INT,
+        IN in_answer_id_14 INT,
+        IN in_question_id_1 INT,
+        IN in_question_id_2 INT,
+        IN in_question_id_3 INT,
+        IN in_question_id_4 INT,
+        IN in_question_id_5 INT,
+        IN in_question_id_6 INT,
+        IN in_question_id_7 INT,
+        IN in_question_id_8 INT,
+        IN in_question_id_9 INT,
+        IN in_question_id_10 INT,
+        IN in_question_id_11 INT,
+        IN in_question_id_12 INT,
+        IN in_question_id_13 INT,
+        IN in_question_id_14 INT,
+        IN in_answer_value_1 INT,
+        IN in_answer_value_2 INT,
+        IN in_answer_value_3 INT,
+        IN in_answer_value_4 INT,
+        IN in_answer_value_5 INT,
+        IN in_answer_value_6 INT,
+        IN in_answer_value_7 INT,
+        IN in_answer_value_8 INT,
+        IN in_answer_value_9 INT,
+        IN in_answer_value_10 INT,
+        IN in_answer_value_11 INT,
+        IN in_answer_value_12 INT,
+        IN in_answer_value_13 INT,
+        IN in_answer_value_14 INT,
+    )
+BEGIN
+START TRANSACTION;
+    INSERT INTO test_instance VALUES (in_instance_id, in_test_id, in_consult_id, in_result_description, in_result);
+    INSERT INTO answer VALUES (in_answer_id_1, in_question_id_1, in_instance_id, in_answer_value_1);
+    INSERT INTO answer VALUES (in_answer_id_2, in_question_id_2, in_instance_id, in_answer_value_2);
+    INSERT INTO answer VALUES (in_answer_id_3, in_question_id_3, in_instance_id, in_answer_value_3);
+    INSERT INTO answer VALUES (in_answer_id_4, in_question_id_4, in_instance_id, in_answer_value_4);
+    INSERT INTO answer VALUES (in_answer_id_5, in_question_id_5, in_instance_id, in_answer_value_5);
+    INSERT INTO answer VALUES (in_answer_id_6, in_question_id_6, in_instance_id, in_answer_value_6);
+    INSERT INTO answer VALUES (in_answer_id_7, in_question_id_7, in_instance_id, in_answer_value_7);
+    INSERT INTO answer VALUES (in_answer_id_8, in_question_id_8, in_instance_id, in_answer_value_8);
+    INSERT INTO answer VALUES (in_answer_id_9, in_question_id_9, in_instance_id, in_answer_value_9);
+    INSERT INTO answer VALUES (in_answer_id_10, in_question_id_10, in_instance_id, in_answer_value_10);
+    INSERT INTO answer VALUES (in_answer_id_11, in_question_id_11, in_instance_id, in_answer_value_11);
+    INSERT INTO answer VALUES (in_answer_id_12, in_question_id_12, in_instance_id, in_answer_value_12);
+    INSERT INTO answer VALUES (in_answer_id_13, in_question_id_13, in_instance_id, in_answer_value_13);
+    INSERT INTO answer VALUES (in_answer_id_14, in_question_id_14, in_instance_id, in_answer_value_14);
+COMMIT;
+END
+$$ DELIMITER ; 
+
+DELIMITER $$
+CREATE PROCEDURE create_depression_test(
+        IN in_instance_id INT,
+        IN in_test_id INT,
+        IN in_consult_id INT,
+        IN in_result_description VARCHAR(30),
+        IN in_result INT,
+        IN in_answer_id_1 INT,
+        IN in_answer_id_2 INT,
+        IN in_answer_id_3 INT,
+        IN in_answer_id_4 INT,
+        IN in_answer_id_5 INT,
+        IN in_answer_id_6 INT,
+        IN in_answer_id_7 INT,
+        IN in_answer_id_8 INT,
+        IN in_answer_id_9 INT,
+        IN in_answer_id_10 INT,
+        IN in_answer_id_11 INT,
+        IN in_answer_id_12 INT,
+        IN in_answer_id_13 INT,
+        IN in_answer_id_14 INT,
+        IN in_answer_id_15 INT,
+        IN in_answer_id_16 INT,
+        IN in_answer_id_17 INT,
+        IN in_question_id_1 INT,
+        IN in_question_id_2 INT,
+        IN in_question_id_3 INT,
+        IN in_question_id_4 INT,
+        IN in_question_id_5 INT,
+        IN in_question_id_6 INT,
+        IN in_question_id_7 INT,
+        IN in_question_id_8 INT,
+        IN in_question_id_9 INT,
+        IN in_question_id_10 INT,
+        IN in_question_id_11 INT,
+        IN in_question_id_12 INT,
+        IN in_question_id_13 INT,
+        IN in_question_id_14 INT,
+        IN in_question_id_15 INT,
+        IN in_question_id_16 INT,
+        IN in_question_id_17 INT,
+        IN in_answer_value_1 INT,
+        IN in_answer_value_2 INT,
+        IN in_answer_value_3 INT,
+        IN in_answer_value_4 INT,
+        IN in_answer_value_5 INT,
+        IN in_answer_value_6 INT,
+        IN in_answer_value_7 INT,
+        IN in_answer_value_8 INT,
+        IN in_answer_value_9 INT,
+        IN in_answer_value_10 INT,
+        IN in_answer_value_11 INT,
+        IN in_answer_value_12 INT,
+        IN in_answer_value_13 INT,
+        IN in_answer_value_14 INT,
+        IN in_answer_value_15 INT,
+        IN in_answer_value_16 INT,
+        IN in_answer_value_17 INT,
+    )
+BEGIN
+START TRANSACTION;
+    INSERT INTO test_instance VALUES (in_instance_id, in_test_id, in_consult_id, in_result_description, in_result);
+    INSERT INTO answer VALUES (in_answer_id_1, in_question_id_1, in_instance_id, in_answer_value_1);
+    INSERT INTO answer VALUES (in_answer_id_2, in_question_id_2, in_instance_id, in_answer_value_2);
+    INSERT INTO answer VALUES (in_answer_id_3, in_question_id_3, in_instance_id, in_answer_value_3);
+    INSERT INTO answer VALUES (in_answer_id_4, in_question_id_4, in_instance_id, in_answer_value_4);
+    INSERT INTO answer VALUES (in_answer_id_5, in_question_id_5, in_instance_id, in_answer_value_5);
+    INSERT INTO answer VALUES (in_answer_id_6, in_question_id_6, in_instance_id, in_answer_value_6);
+    INSERT INTO answer VALUES (in_answer_id_7, in_question_id_7, in_instance_id, in_answer_value_7);
+    INSERT INTO answer VALUES (in_answer_id_8, in_question_id_8, in_instance_id, in_answer_value_8);
+    INSERT INTO answer VALUES (in_answer_id_9, in_question_id_9, in_instance_id, in_answer_value_9);
+    INSERT INTO answer VALUES (in_answer_id_10, in_question_id_10, in_instance_id, in_answer_value_10);
+    INSERT INTO answer VALUES (in_answer_id_11, in_question_id_11, in_instance_id, in_answer_value_11);
+    INSERT INTO answer VALUES (in_answer_id_12, in_question_id_12, in_instance_id, in_answer_value_12);
+    INSERT INTO answer VALUES (in_answer_id_13, in_question_id_13, in_instance_id, in_answer_value_13);
+    INSERT INTO answer VALUES (in_answer_id_14, in_question_id_14, in_instance_id, in_answer_value_14);
+    INSERT INTO answer VALUES (in_answer_id_15, in_question_id_15, in_instance_id, in_answer_value_15);
+    INSERT INTO answer VALUES (in_answer_id_16, in_question_id_16, in_instance_id, in_answer_value_16);
+    INSERT INTO answer VALUES (in_answer_id_17, in_question_id_17, in_instance_id, in_answer_value_17);
+COMMIT;
+END
+$$ DELIMITER ; 
+
+CREATE TABLE test_instance(
+	instance_id INT,
+  	test_id INT,
+	consult_id INT,
+	result_description VARCHAR(30) NOT NULL,
+	result INT NOT NULL,
+	PRIMARY KEY (instance_id),
+  	FOREIGN KEY (test_id) REFERENCES test(test_id),
+	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
+);
+
+
+CREATE TABLE answer(
+	answer_id INT,
+	question_id INT,
+	instance_id INT,
+	answer_value INT NOT NULL,
+	PRIMARY KEY (answer_id),
+	FOREIGN KEY (instance_id) REFERENCES test_instance(instance_id),
+	FOREIGN KEY (question_id) REFERENCES questions(question_id)
+);

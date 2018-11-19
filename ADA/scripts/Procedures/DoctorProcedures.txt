@@ -1,0 +1,77 @@
+-- READ
+DELIMITER $$
+CREATE PROCEDURE get_doctor_id_name()
+SELECT doctor_id, concat(first_name, ' ', last_name )
+FROM doctor
+$$ DELIMITER
+
+DELIMITER $$
+CREATE PROCEDURE get_doctor_by_id()
+SELECT doctor_id, concat(first_name, ' ', last_name )
+FROM doctor
+$$ DELIMITER
+
+
+-- CREATE
+DELIMITER $$
+CREATE PROCEDURE create_doctor(
+	IN in_doctor_id INT,
+	IN in_first_name VARCHAR(20),
+	IN in_last_name VARCHAR(20),
+	IN in_phone VARCHAR(15),
+ 	IN in_license VARCHAR(8)
+ 	)
+BEGIN
+START TRANSACTION;       
+       INSERT INTO doctor VALUES(in_doctor_id,in_license, in_first_name, in_last_name, in_phone	)
+       
+       SELECT * 
+       FROM doctor
+	   WHERE doctor_id = in_doctor_id;
+COMMIT;
+END
+$$ DELIMITER ;
+
+-- UPDATE
+DELIMITER $$
+CREATE PROCEDURE update_doctor(
+	IN in_doctor_id INT,
+	IN in_first_name VARCHAR(20),
+	IN in_last_name VARCHAR(20),
+	IN in_license VARCHAR(8),
+	IN in_phone VARCHAR(15)
+	)
+
+BEGIN
+START TRANSACTION;
+UPDATE patient
+	SET first_name=in_first_name,
+	last_name =	in_last_name,
+	license = in_license,
+	phone = in_phone,
+	WHERE doctor_id = in_doctor_id
+
+SELECT Max(doctor_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4'
+FROM doctor
+COMMIT;
+END
+
+$$ DELIMITER ;
+
+-- DELETE
+DELIMITER $$
+CREATE PROCEDURE delete_doctor(IN in_doctor_id)
+BEGIN
+START TRANSACTION;
+DELETE FROM consult
+WHERE consult.doctor_id = in_doctor_id
+
+DELETE FROM doctor
+WHERE doctor.doctor_id = in_doctor_id
+
+SELECT Max(doctor_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4'
+FROM doctor
+
+COMMIT;
+END
+$$ DELIMITER ;

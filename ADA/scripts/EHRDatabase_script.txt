@@ -68,12 +68,12 @@ CREATE TABLE questions(
 
 CREATE TABLE test_instance(
 	instance_id INT,
-  test_id INT,
+  	test_id INT,
 	consult_id INT,
 	result_description VARCHAR(30) NOT NULL,
 	result INT NOT NULL,
 	PRIMARY KEY (instance_id),
-  FOREIGN KEY (test_id) REFERENCES test(test_id),
+  	FOREIGN KEY (test_id) REFERENCES test(test_id),
 	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
 );
 

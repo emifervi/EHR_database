@@ -1,0 +1,12 @@
+/* Complex Query 1
+	Get 
+*/
+DELIMITER $$
+    CREATE PROCEDURE get_prescription_by_consult(IN consult_id_input INT)
+    SELECT consult_schedule AS 'Time', consult_date AS 'Date', consult_id AS 'Visit id', medicine_name AS 'Medicine name', instructions 
+    FROM consult JOIN prescription 
+    ON consult.prescription_id = prescription.prescription_id 
+    JOIN recipe ON prescription.prescription_id = recipe.prescription_id 
+    JOIN medicine ON recipe.medicine_id= medicine.medicine_id
+    WHERE consult_id_input = consult_id
+$$ DELIMITER ;

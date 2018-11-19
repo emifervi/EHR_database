@@ -1,24 +1,10 @@
-DELIMITER $$
-CREATE PROCEDURE Get_patients()
-	SELECT * FROM patient
-$$ DELIMITER ;
-
-DELIMITER $$
-CREATE PROCEDURE Get_Prescription(IN consult_id_input INT)
-SELECT consult_schedule AS 'Time', consult_date AS 'Date', consult_id AS 'Visit id', med_name AS 'Medicine name', instructions 
-FROM consult JOIN prescription 
-ON consult.prescription_id = prescription.prescription_id 
-JOIN prescription_meds ON prescription.prescription_id = prescription_meds.prescription_id 
-JOIN meds ON prescription_meds.med_id = meds.med_id
-WHERE consult_id_input = consult_id
-$$ DELIMITER ;
-
 /* CRUD PROCEDURES */
 
 /* Patient table*/
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `create_patient`(
+CREATE PROCEDURE create_patient(
+	IN in_patient_id INT,
 	IN in_first_name VARCHAR(20),
 	IN in_last_name VARCHAR(20),
 	IN in_sex CHAR(1),
@@ -29,7 +15,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `create_patient`(
  	IN in_email VARCHAR(30),
  	IN in_date_of_birth DATE
 	)
-INSERT INTO patient (first_name,last_name,sex,rfc,phone,city,street_address,email,date_of_birth) 
+BEGIN
+START TRANSACTION;
+INSERT INTO patient (in_patient_id,first_name,last_name,sex,rfc,phone,city,street_address,email,date_of_birth) 
 	VALUES(
 		in_first_name,
 		in_last_name,
@@ -40,48 +28,67 @@ INSERT INTO patient (first_name,last_name,sex,rfc,phone,city,street_address,emai
 		in_street_address,
 		in_email,
 		in_date_of_birth
-		)$$
-DELIMITER ;
+		);
+
+	SELECT *
+	FROM patient
+	WHERE patient_id = in_patient_id;
+COMMIT;
+END
+$$ DELIMITER ;
+
 /* -----------------------------------------Borrar paciente(Patient_id) -----------------------------------------*/
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_patient`( IN in_patient_id INT)
+CREATE PROCEDURE delete_patient( IN in_patient_id INT)
 BEGIN
+START TRANSACTION;
 /* 1. Borrar respuestas del paciente de consultas donde el paciente es in_patient_id */
 	DELETE FROM answer
-	WHERE instance_id = ANY(
-		SELECT ti.instance_id
-		FROM consult c JOIN test_instance ti ON c.consult_id = ti.consult_id
-		WHERE patient_id = in_patient_id);
+	WHERE instance_id IN (
+						  SELECT instance_id 
+						  FROM test_instance
+						  WHERE consult_id IN (
+							  				   SELECT consult_id
+						  					   FROM consult
+											   WHERE patient_id = in_patient_id
+											  )
+						 );
 /*2.Borrar consultas de test_instance donde el paciente es in_patient_id*/
 DELETE FROM test_instance
-	WHERE consult_id = ANY (
-		SELECT consult_id
-		FROM consult
-		WHERE patient_id = in_patient_id
-	);
+WHERE consult_id IN (
+					 SELECT consult_id
+					 FROM consult
+					 WHERE patient_id = in_patient_id
+					);
 
 /* 3.Borrar de la tabla Detalles_Med */
 DELETE FROM recipe
-WHERE prescription_id = ANY(
-	SELECT p.prescription_id
-	FROM consult c JOIN prescription p ON c.prescription_id = p.prescription_id
-	WHERE c.patient_id = in_patient_id);
+WHERE prescription_id IN (
+						  SELECT prescription_id
+                          FROM prescription
+						  WHERE consult_id IN (
+							  				   SELECT consult_id
+						  					   FROM consult
+											   WHERE patient_id = in_patient_id
+											  )
+						 );
 
 /* 4.Borrar de la tabla prescription todas las consultas donde el paciente es in_patient_id*/
 DELETE FROM prescription
-WHERE consult_id = ANY(
-	SELECT c.consult_id
-	FROM consult c
-	WHERE c.patient_id = in_patient_id
-	);
+WHERE consult_id IN (
+					 SELECT consult_id
+					 FROM consult
+					 WHERE patient_id = in_patient_id
+					);
 
 /* 5. Borrar consultas del diagnostico donde el paciente es in_patient_id*/ 
 DELETE FROM diagnostic
-WHERE consult_id = ANY(
-	SELECT c.consult_id
-	FROM consult c
-	WHERE c.patient_id = in_patient_id
-	);
+WHERE consult_id IN (
+					 SELECT consult_id
+					 FROM consult
+					 WHERE patient_id = in_patient_id
+					);
+
 /* 6. Borrar de la tabla consultas donde el paciente es in_patient_id*/
 	DELETE FROM consult
 	WHERE patient_id = in_patient_id;
@@ -89,13 +96,18 @@ WHERE consult_id = ANY(
 /* 7. Borrar de la tabla paciente donde el paciente es in_patient_id */
 	DELETE FROM patient
 	WHERE patient_id = in_patient_id;
-	END$$
-DELIMITER ;
+
+	SELECT Max(patient_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4', ' ' AS '5', ' ' AS '6', ' ' AS '7', ' ' AS '8', ' ' AS '9'
+	FROM patient;
+COMMIT;
+END
+$$ DELIMITER ;
 
 /* -----------------------------------------Borrar paciente(first_name) -----------------------------------------*/
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_patient`( IN in_first_name INT)
+CREATE PROCEDURE delete_patient_by_name( IN in_first_name VARCHAR(20))
 BEGIN
+START TRANSACTION;
 /* 1. Borrar respuestas del paciente de consultas donde el paciente es in_first_name */
 	DELETE FROM answer
 	WHERE instance_id = ANY(
@@ -139,32 +151,35 @@ WHERE consult_id = ANY(
 /* 7. Borrar de la tabla paciente donde el paciente es in_first_name */
 	DELETE FROM patient
 	WHERE first_name = in_first_name;
-	END$$
-DELIMITER ;
+
+	SELECT Max(patient_id) + 1, ' ' AS '1', ' ' AS '2', ' ' AS '3' , ' ' AS '4', ' ' AS '5', ' ' AS '6', ' ' AS '7', ' ' AS '8', ' ' AS '9'
+	FROM patient
+
+	COMMIT;
+	END
+$$ DELIMITER ;
 
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_patients`()
-SELECT * FROM patient$$
-DELIMITER ;
+CREATE PROCEDURE get_all_patients()
+SELECT * FROM patient
+$$ DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_patient_id_name`()
-    NO SQL
+CREATE PROCEDURE get_patient_id_name()
 SELECT patient_id, concat(first_name," ",last_name) AS Name
-FROM patient$$
-DELIMITER ;
+FROM patient
+$$ DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_patient`(IN `in_patient_id` INT)
-    NO SQL
+CREATE PROCEDURE get_patient(IN in_patient_id INT)
 SELECT * 
 FROM patient
 WHERE patient_id = in_patient_id$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_patient`(
+CREATE PROCEDURE update_patient(
 	IN in_patient_id INT,
 	IN in_first_name VARCHAR(20),
 	IN in_last_name VARCHAR(20),
@@ -176,6 +191,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `update_patient`(
  	IN in_email VARCHAR(30),
  	IN in_date_of_birth DATE
 	)
+
+BEGIN
+START TRANSACTION;
 UPDATE patient
 	SET first_name=in_first_name,
 	last_name =	in_last_name,
@@ -186,5 +204,25 @@ UPDATE patient
 	street_address = in_street_address,
 	email = in_email,
 	date_of_birth =	in_date_of_birth
-	WHERE patient_id = in_patient_id$$
-DELIMITER ;
+	WHERE patient_id = in_patient_id;
+
+	SELECT *
+	FROM patient
+	WHERE patient_id = in_patient_id;
+COMMIT;
+END
+$$ DELIMITER ;
+
+
+/*EHR per patient*/
+DELIMITER $$
+CREATE PROCEDURE get_medical_records(IN in_patient_id INT)
+SELECT consult.consult_id AS 'Consult',  peea AS 'Reason', concat(first_name," ",last_name)AS 'Doctor', consult_date AS 'Consult date', description AS 'Diagnostic description'
+FROM doctor JOIN consult 
+ON doctor.doctor_id = consult.doctor_id
+JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+WHERE patient_id = in_patient_id
+ORDER BY YEAR(consult_date), MONTH(consult_date), DAY(consult_date)
+$$ DELIMITER ;
+ 

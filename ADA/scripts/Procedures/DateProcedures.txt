@@ -1,0 +1,34 @@
+DELIMITER $$
+CREATE PROCEDURE get_medicine_by_dates (IN in_start_date DATE, IN in_end_date DATE)
+    SELECT medicine_name, COUNT(medicine_id) AS 'Repetition'
+    FROM medicine, recipe, prescription, consult
+    WHERE medicine.medicine_id = recipe.recipe_id AND recipe.prescription_id = prescription.prescription.id AND prescription.consult_id = consult.consult_id 
+    AND (consult_date BETWEEN in_start_date AND in_end_date)
+    GROUP BY medicine_name
+    ORDER BY COUNT(medicine_id) DESC
+$$ DELIMITER ;
+
+/* Get diagnosis and # of times */
+DELIMITER $$
+CREATE PROCEDURE get_diagnostic_by_dates (IN in_start_date DATE, IN in_end_date DATE)
+    SELECT description AS 'Description', count(diagnostic.disease_catalog_id) AS 'Consult amount'
+    FROM consult 
+    JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+    JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+    WHERE consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY description
+    ORDER BY count(diagnostic.disease_catalog_id) DESC
+$$ DELIMITER ;
+
+DELIMITER $$
+/*Get consults by dates */
+CREATE PROCEDURE get_consult_by_dates (IN in_start_date DATE, IN in_end_date DATE)
+    SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor',concat(patient.first_name," ",patient.last_name) AS 'Patient', peea AS 'Motivo de consulta', consult_date AS 'Fecha de consulta', description AS 'Descripción de diagnóstico'
+    FROM doctor
+    JOIN consult ON doctor.doctor_id = consult.doctor_id
+    JOIN patient ON consult.patient_id = patient.patient_id
+    JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+    JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+    WHERE consult_date > in_start_date AND consult_date < in_end_date
+    ORDER BY COUNT(consult.consult_id) DESC
+$$ DELIMITER ;

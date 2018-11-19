@@ -1,0 +1,29 @@
+DELIMITER $$
+CREATE PROCEDURE create_consult(
+	IN in_patient_id INT,
+	IN in_doctor_id INT,
+ 	IN in_peea VARCHAR(100),
+	IN in_consult_schedule CHAR(5),
+	IN in_consult_date DATE
+ 	)
+INSERT INTO consult (patient_id,doctor_id,peea,consult_schedule,consult_date) 
+	VALUES(
+        in_patient_id,
+        in_doctor_id,
+        in_peea,
+        in_consult_schedule,
+        in_consult_date
+		)
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE create_diagnostic(
+	IN in_consult_id INT(11),
+    IN in_disease_catalog_id INT(11)
+ 	)
+INSERT INTO diagnostic (consult_id, disease_catalog_id) 
+	VALUES(
+        in_consult_id,
+        in_disease_catalog_id
+		)
+$$ DELIMITER ;
