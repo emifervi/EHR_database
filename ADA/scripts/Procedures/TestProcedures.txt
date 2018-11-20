@@ -1,4 +1,32 @@
 DELIMITER $$
+CREATE PROCEDURE create_test_instance(IN in_test_id INT, IN in_consult_id INT)
+BEGIN
+START TRANSACTION;
+INSERT INTO test_instance(test_id, consult_id) VALUES(in_test_id, in_consult_id);
+
+SELECT instance_id, ' ' as '1', ' ' AS '2'
+FROM test_instance
+ORDER BY instance_id DESC;
+
+COMMIT;
+END
+$$ DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE submit_answer(IN in_test_id INT, IN in_question_id INT, IN in_answer_value INT )
+BEGIN
+START TRANSACTION;
+INSERT INTO answer(question_id, instance_id, answer_value ) VALUES (in_question_id, in_test_id, in_answer_value);
+
+SELECT instance_id, MAX(question_id)+1, ' ' AS '1'
+FROM answer 
+WHERE instance_id = in_test_id;
+COMMIT;
+END
+$$ DELIMITER
+
+DELIMITER $$
 CREATE PROCEDURE show_test_questions(IN in_test_id INT)
 SELECT Question_id AS 'Question ID',Question
 FROM questions

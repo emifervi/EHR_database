@@ -11,4 +11,51 @@ ALTER TABLE patient
     
 ALTER TABLE consult
 	ADD CONSTRAINT consult_ibfk_1 FOREIGN KEY (patient_id)
-	REFERENCES patient(patient_id)
+	REFERENCES patient(patient_id);
+
+-- Consult Table
+
+ALTER TABLE diagnostic
+	DROP FOREIGN KEY diagnostic_ibfk_1,
+    MODIFY consult_id INT NOT NULL;
+
+ALTER TABLE test_instance
+	DROP FOREIGN KEY test_instance_ibfk_2,
+    MODIFY consult_id INT NOT NULL;
+
+ALTER TABLE prescription
+	DROP FOREIGN KEY prescription_ibfk_1,
+    MODIFY consult_id INT NOT NULL;
+
+
+ALTER TABLE consult
+	MODIFY consult_id INT AUTO_INCREMENT;
+    
+ALTER TABLE diagnostic
+	ADD CONSTRAINT diagnostic_ibfk_1 FOREIGN KEY (consult_id)
+	REFERENCES consult(consult_id);
+
+    
+ALTER TABLE test_instance
+	ADD CONSTRAINT test_instance_ibfk_2 FOREIGN KEY (consult_id)
+	REFERENCES consult(consult_id);
+
+ALTER TABLE prescription
+	ADD CONSTRAINT prescription_ibfk_1 FOREIGN KEY (consult_id)
+	REFERENCES consult(consult_id);
+
+
+-- Instance table
+
+ALTER TABLE answer
+	DROP FOREIGN KEY answer_ibfk_1,
+    MODIFY instance_id INT NOT NULL;
+    
+ALTER TABLE test_instance
+	MODIFY instance_id INT AUTO_INCREMENT;
+    
+ALTER TABLE answer
+	ADD CONSTRAINT answer_ibfk_1 FOREIGN KEY (instance_id)
+	REFERENCES test_instance(instance_id);
+
+
