@@ -104,6 +104,14 @@ END
 
 $$ DELIMITER ;
 
+
+
+
+
+
+
+
+
 /* -----------------------------------------Borrar paciente(first_name) -----------------------------------------*/
 DELIMITER $$
 CREATE PROCEDURE delete_patient_by_name( IN in_first_name VARCHAR(20))
