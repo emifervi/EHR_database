@@ -1,4 +1,55 @@
 DELIMITER $$
+CREATE PROCEDURE show_test_questions(IN in_test_id INT)
+SELECT Question_id AS 'Question ID',Question
+FROM questions
+WHERE test_id = in_test_id
+$$ DELIMITER
+
+DELIMITER $$
+CREATE PROCEDURE get_test_result(IN in_instance_id INT)
+SELECT SUM(answer_value) AS Result, 'Not depressed' AS Meaning
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+HAVING SUM(answer_value)<8
+UNION
+SELECT SUM(answer_value), 'Minor/mild depression'
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+HAVING SUM(answer_value)>7 AND SUM(answer_value)<14 
+UNION
+SELECT SUM(answer_value), 'Moderate depression'
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+HAVING SUM(answer_value)>13 AND SUM(answer_value)<19
+UNION
+SELECT SUM(answer_value), 'Severe depression'
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+HAVING SUM(answer_value)>18 AND SUM(answer_value)<23 
+UNION
+SELECT SUM(answer_value), 'Very severe depression'
+FROM questions JOIN test
+ON questions.test_id = test.test_id
+JOIN test_instance ON test_instance.test_id = test.test_id
+JOIN answer ON answer.instance_id = test_instance.instance_id
+WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+HAVING SUM(answer_value)>22
+$$ DELIMITER
+
+
+DELIMITER $$
 CREATE PROCEDURE get_test_instance(IN in_instance_id INT)
 SELECT Question, answer_value AS 'Answer'
 FROM questions JOIN test
