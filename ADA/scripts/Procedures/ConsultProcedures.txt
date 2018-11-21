@@ -8,6 +8,8 @@ CREATE PROCEDURE create_consult(
 	IN in_consult_schedule CHAR(5),
 	IN in_consult_date DATE
  	)
+BEGIN
+START TRANSACTION;
 INSERT INTO consult (patient_id,doctor_id,peea,consult_schedule,consult_date) 
 	VALUES(
         in_patient_id,
@@ -29,9 +31,14 @@ CREATE PROCEDURE create_diagnostic(
 	IN in_consult_id INT(11),
     IN in_disease_catalog_id INT(11)
  	)
+BEGIN
+START TRANSACTION;
 INSERT INTO diagnostic (consult_id, disease_catalog_id) 
 	VALUES(
         in_consult_id,
         in_disease_catalog_id
 		)
+
+COMMIT;
+END
 $$ DELIMITER ;
