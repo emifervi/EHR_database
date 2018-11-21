@@ -4,10 +4,14 @@ BEGIN
 START TRANSACTION;
 INSERT INTO test_instance(test_id, consult_id) VALUES(in_test_id, in_consult_id);
 
-SELECT instance_id, ' ' as '1', ' ' AS '2'
-FROM test_instance
-ORDER BY instance_id DESC;
 
+SELECT instance_id, MIN(question_id), ' ' AS '2'
+FROM test_instance JOIN questions ON test_instance.test_id = questions.test_id
+GROUP BY instance_id
+HAVING instance_id >= ALL(
+	SELECT MAX(instance_id)
+    FROM test_instance
+);
 COMMIT;
 END
 $$ DELIMITER ;

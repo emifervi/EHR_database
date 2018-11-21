@@ -1,0 +1,30 @@
+DELIMITER $$
+CREATE PROCEDURE get_diagnostic_id_name()
+SELECT disease_catalog_id, description
+FROM disease_catalog;
+
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE get_disease(IN in_disease_id INT)
+SELECT icd10, icd9, description
+FROM disease_catalog
+WHERE disease_catalog_id = in_disease_id;
+
+$$ DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE create_diagnosis(IN in_consult_id INT, IN in_diag_id)
+BEGIN
+START TRANSACTION;
+
+INSERT INTO diagnostic VALUES (in_consult_id, in_diag_id);
+
+SELECT icd10, icd9, description,
+FROM disease_catalog
+WHERE disease_catalog_id = in_diag_id;
+
+COMMIT;
+END
+$$ DELIMITER ;

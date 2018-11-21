@@ -1,0 +1,66 @@
+DELIMITER $$
+    CREATE PROCEDURE get_prescription(IN in_prescription_id INT)
+    SELECT prescription.prescription_id AS 'ID', medicine_name AS 'Medicine', Ingredient, Dose, Instructions
+    FROM prescription JOIN recipe
+    ON prescription.prescription_id = recipe.prescription_id
+    JOIN medicine ON recipe.medicine_id = medicine.medicine_id
+    WHERE in_prescription_id = prescription.prescription_id
+$$ DELIMITER ;
+
+DELIMITER $$
+    CREATE PROCEDURE get_prescription_id_by_patient_id(IN in_patient_id INT)
+    SELECT prescription.prescription_id AS 'Prescription ID', concat(patient.first_name, ' ', patient.last_name) AS 'Patient', 
+    Sex, patient.Phone AS 'Patient Contact', consult.consult_date AS 'Date', concat(doctor.first_name, ' ', doctor.last_name) AS 'Doctor'  
+    FROM prescription JOIN consult
+    ON prescription.consult_id = consult.consult_id
+    JOIN patient ON consult.patient_id = patient.patient_id
+    JOIN doctor ON consult.doctor_id = doctor.doctor_id
+    WHERE in_patient_id = consult.patient_id
+    ORDER BY consult.consult_date DESC;
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE create_prescription_id(IN in_consult_id INT)
+BEGIN
+START TRANSACTION;
+INSERT INTO prescription(consult_id) VALUES(in_consult_id);
+
+SELECT prescription_id
+FROM prescription
+ORDER BY prescription_id DESC;
+COMMIT;
+END
+$$ DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE get_med_id_name()
+SELECT medicine_id, medicine_name
+FROM medicine
+ORDER BY medicine_name;
+
+$$ DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE create_recipe(IN in_prescription_id INT, IN in_medicine_id INT, IN in_instructions VARCHAR(40))
+BEGIN
+START TRANSACTION;
+INSERT INTO recipe VALUES(in_medicine_id, in_prescription_id, in_instructions);
+
+SELECT Instructions
+FROM recipe
+WHERE medicine_id = in_medicine_id AND prescription_id = in_prescription_id;
+
+COMMIT;
+END
+$$ DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE get_med_by_id(IN in_med_id INT)
+SELECT Ingredient, Dose
+FROM medicine
+WHERE medicine_id = in_med_id
+$$ DELIMITER ;
+
