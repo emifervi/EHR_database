@@ -1,0 +1,20 @@
+DELIMITER $$
+CREATE PROCEDURE create_medicine(
+	IN in_medicine_id INT,
+    IN in_medicine_name VARCHAR(15),
+    IN in_ingredient VARCHAR(15),
+    IN in_dose VARCHAR(8)
+ 	)
+BEGIN
+START TRANSACTION;
+INSERT INTO medicine
+	VALUES(
+        in_medicine_id,
+        in_medicine_name,
+        in_ingredient,
+        in_dose
+		);
+
+COMMIT;
+END
+$$ DELIMITER ;
