@@ -10,3 +10,23 @@ DELIMITER $$
     JOIN medicine ON recipe.medicine_id= medicine.medicine_id
     WHERE consult_id_input = consult_id
 $$ DELIMITER ;
+
+
+
+
+
+/* Complex Query Emilio */
+DELIMITER $$
+    CREATE PROCEDURE count_patients_by_age()
+    SELECT YEAR(CURRENT_TIMESTAMP)-YEAR(date_of_birth)-(RIGHT(CURRENT_TIMESTAMP, 5)<RIGHT(date_of_birth, 5)) as age, 
+    COUNT(YEAR(CURRENT_TIMESTAMP) - YEAR(date_of_birth) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(date_of_birth, 5)))
+    FROM patient
+    GROUP BY age
+$$ DELIMITER ;
+
+DELIMITER $$
+    CREATE PROCEDURE count_patients_by_sex()
+    SELECT sex, COUNT(sex)
+    FROM patient
+    GROUP BY sex
+$$ DELIMITER ;
