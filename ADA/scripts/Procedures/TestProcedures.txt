@@ -196,25 +196,3 @@ START TRANSACTION;
 COMMIT;
 END
 $$ DELIMITER ; 
-
-CREATE TABLE test_instance(
-	instance_id INT,
-  	test_id INT,
-	consult_id INT,
-	result_description VARCHAR(30) NOT NULL,
-	result INT NOT NULL,
-	PRIMARY KEY (instance_id),
-  	FOREIGN KEY (test_id) REFERENCES test(test_id),
-	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
-);
-
-
-CREATE TABLE answer(
-	answer_id INT,
-	question_id INT,
-	instance_id INT,
-	answer_value INT NOT NULL,
-	PRIMARY KEY (answer_id),
-	FOREIGN KEY (instance_id) REFERENCES test_instance(instance_id),
-	FOREIGN KEY (question_id) REFERENCES questions(question_id)
-);
