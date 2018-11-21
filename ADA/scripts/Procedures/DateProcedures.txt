@@ -29,20 +29,21 @@ CREATE PROCEDURE get_diagnostic_by_dates_chart (IN in_start_date DATE, IN in_end
     JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
     WHERE consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY disease_catalog.disease_catalog_id
-    ORDER BY count(diagnostic.disease_catalog_id) DESC
+    ORDER BY disease_catalog.disease_catalog_id
 $$ DELIMITER ;
 
 /* Get diagnosis and # of times with icd10*/
 DELIMITER $$
 CREATE PROCEDURE get_diagnostic_by_dats_legend (IN in_start_date DATE, IN in_end_date DATE)
-    SELECT disease_catalog_id AS 'ID' ,ICD10,ICD9, description as 'Description'
+    SELECT disease_catalog.disease_catalog_id AS 'ID' ,ICD10,ICD9, description as 'Description'
     FROM consult 
     JOIN diagnostic ON consult.consult_id  = diagnostic.consult_id
     JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
     WHERE consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY ICD10,ICD9,description
-    ORDER BY count(diagnostic.disease_catalog_id) DESC
+    ORDER BY  disease_catalog.disease_catalog_id 
 $$ DELIMITER ;
+
 DELIMITER $$
 /*Get consults by id*/
 CREATE PROCEDURE get_consult_by_dates (IN in_start_date DATE, IN in_end_date DATE)
