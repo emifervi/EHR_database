@@ -59,11 +59,9 @@ $$ DELIMITER ;
 
 /*Get consults by dates by doctor*/
 CREATE PROCEDURE get_consult_by_dates_doctor (IN in_start_date DATE, IN in_end_date DATE)
-    SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor'
-    FROM doctor
-    JOIN consult ON doctor.doctor_id = consult.doctor_id
-    JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
-    JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
-    WHERE consult_date > in_start_date AND consult_date < in_end_date
-    ORDER BY COUNT(consult.consult_id) DESC
+    SELECT concat(doctor.first_name,' ',doctor.last_name) AS 'Doctor', COUNT(consult.consult_id) AS 'Consults'
+    FROM doctor JOIN consult ON doctor.doctor_id = consult.doctor_id
+    WHERE consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY doctor.doctor_id
+    ORDER BY doctor.first_name, doctor.last_name
 $$ DELIMITER ;
