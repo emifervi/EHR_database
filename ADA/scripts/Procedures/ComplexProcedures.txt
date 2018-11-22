@@ -18,8 +18,8 @@ $$ DELIMITER ;
 /* Complex Query Emilio */
 DELIMITER $$
     CREATE PROCEDURE count_patients_by_age(IN in_start_date DATE, IN in_end_date DATE)
-    SELECT YEAR(CURRENT_TIMESTAMP)-YEAR(date_of_birth)-(RIGHT(CURRENT_TIMESTAMP, 5)<RIGHT(date_of_birth, 5)) as age, 
-    COUNT(YEAR(CURRENT_TIMESTAMP) - YEAR(date_of_birth) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(date_of_birth, 5))) as 'Number of patients'
+    SELECT YEAR(CURRENT_DATE)-YEAR(date_of_birth)-(RIGHT(CURRENT_DATE, 5)<RIGHT(date_of_birth, 5)) as age, 
+    COUNT(YEAR(CURRENT_DATE) - YEAR(date_of_birth) - (RIGHT(CURRENT_DATE, 5) < RIGHT(date_of_birth, 5))) as 'Number of patients'
     FROM patient JOIN consult ON patient.patient_id = consult.patient_id
     WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY age
@@ -28,9 +28,11 @@ $$ DELIMITER ;
 
 DELIMITER $$
     CREATE PROCEDURE count_patients_by_sex(IN in_start_date DATE, IN in_end_date DATE)
-    SELECT sex, COUNT(sex)
+    SELECT sex as Sex, COUNT(sex) as 'Number of patients'
     FROM patient JOIN consult on patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY sex
+    ORDER by COUNT(sex) DESC
 $$ DELIMITER ;
 
 /*Complex Query Kurt */
