@@ -17,23 +17,25 @@ $$ DELIMITER ;
 
 /* Complex Query Emilio */
 DELIMITER $$
-    CREATE PROCEDURE count_patients_by_age()
+    CREATE PROCEDURE count_patients_by_age(IN in_start_date DATE, IN in_end_date DATE)
     SELECT YEAR(CURRENT_TIMESTAMP)-YEAR(date_of_birth)-(RIGHT(CURRENT_TIMESTAMP, 5)<RIGHT(date_of_birth, 5)) as age, 
-    COUNT(YEAR(CURRENT_TIMESTAMP) - YEAR(date_of_birth) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(date_of_birth, 5)))
-    FROM patient
+    COUNT(YEAR(CURRENT_TIMESTAMP) - YEAR(date_of_birth) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(date_of_birth, 5))) as 'Number of patients'
+    FROM patient JOIN consult ON patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY age
+    ORDER BY age DESC
 $$ DELIMITER ;
 
 DELIMITER $$
-    CREATE PROCEDURE count_patients_by_sex()
+    CREATE PROCEDURE count_patients_by_sex(IN in_start_date DATE, IN in_end_date DATE)
     SELECT sex, COUNT(sex)
-    FROM patient
+    FROM patient JOIN consult on patient.patient_id = consult.patient_id
     GROUP BY sex
 $$ DELIMITER ;
 
 /*Complex Query Kurt */
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_upcoming_consults`()
+CREATE PROCEDURE `get_upcoming_consults`()
 SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor',concat(patient.first_name," ",patient.last_name) AS 'Patient', peea AS 'Motivo de consulta', consult_date AS 'Fecha de consulta', description AS 'Descripción de diagnóstico'
     FROM doctor
     JOIN consult ON doctor.doctor_id = consult.doctor_id
@@ -41,5 +43,5 @@ SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.las
     JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
     JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
     WHERE consult_date >= CURDATE()
-    ORDER BY consult_date DESC$$
-DELIMITER ;
+    ORDER BY consult_date DESC
+$$ DELIMITER ;
