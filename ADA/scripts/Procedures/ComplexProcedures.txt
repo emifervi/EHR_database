@@ -47,3 +47,14 @@ SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.las
     WHERE consult_date >= CURDATE()
     ORDER BY consult_date DESC
 $$ DELIMITER ;
+
+/* Complex Query Memo */
+DELIMITER $$
+CREATE PROCEDURE get_patient_city_by_dates(IN in_start_date DATE, IN in_end_date DATE)
+    SELECT city AS 'City', COUNT(city) AS 'Ammount of patients'
+    FROM patient JOIN consult
+    ON patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY patient.city
+    ORDER BY patient.city
+$$ DELIMITER ;
