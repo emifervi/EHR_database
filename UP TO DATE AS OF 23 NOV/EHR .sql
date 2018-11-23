@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 21, 2018 at 11:59 PM
+-- Generation Time: Nov 23, 2018 at 05:43 PM
 -- Server version: 10.1.34-MariaDB
 -- PHP Version: 7.2.8
 
@@ -41,15 +41,19 @@ COMMIT;
 END$$
 
 DROP PROCEDURE IF EXISTS `count_patients_by_age`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `count_patients_by_age` ()  SELECT YEAR(CURRENT_TIMESTAMP)-YEAR(date_of_birth)-(RIGHT(CURRENT_TIMESTAMP, 5)<RIGHT(date_of_birth, 5)) as age, 
-    COUNT(YEAR(CURRENT_TIMESTAMP) - YEAR(date_of_birth) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(date_of_birth, 5)))
-    FROM patient
-    GROUP BY age$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `count_patients_by_age` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT YEAR(CURRENT_DATE)-YEAR(date_of_birth)-(RIGHT(CURRENT_DATE, 5)<RIGHT(date_of_birth, 5)) as age, 
+    COUNT(YEAR(CURRENT_DATE) - YEAR(date_of_birth) - (RIGHT(CURRENT_DATE, 5) < RIGHT(date_of_birth, 5))) as 'Number of patients'
+    FROM patient JOIN consult ON patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY age
+    ORDER BY age$$
 
 DROP PROCEDURE IF EXISTS `count_patients_by_sex`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `count_patients_by_sex` ()  SELECT sex, COUNT(sex)
-    FROM patient
-    GROUP BY sex$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `count_patients_by_sex` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT sex as Sex, COUNT(sex) as 'Number of patients'
+    FROM patient JOIN consult on patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY sex
+    ORDER by COUNT(sex) DESC$$
 
 DROP PROCEDURE IF EXISTS `create_consult`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `create_consult` (IN `in_patient_id` INT, IN `in_doctor_id` INT, IN `in_peea` VARCHAR(100), IN `in_consult_schedule` CHAR(5), IN `in_consult_date` DATE)  BEGIN
@@ -124,6 +128,22 @@ SELECT Instructions
 FROM recipe
 WHERE medicine_id = in_medicine_id AND prescription_id = in_prescription_id;
 
+COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS `create_test_instance`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_test_instance` (IN `in_test_id` INT, IN `in_consult_id` INT)  BEGIN
+START TRANSACTION;
+INSERT INTO test_instance(test_id, consult_id) VALUES(in_test_id, in_consult_id);
+
+
+SELECT instance_id, MIN(question_id), ' ' AS '2'
+FROM test_instance JOIN questions ON test_instance.test_id = questions.test_id
+GROUP BY instance_id
+HAVING instance_id >= ALL(
+	SELECT MAX(instance_id)
+    FROM test_instance
+);
 COMMIT;
 END$$
 
@@ -256,23 +276,21 @@ DROP PROCEDURE IF EXISTS `get_all_patients`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_patients` ()  SELECT * FROM patient$$
 
 DROP PROCEDURE IF EXISTS `get_consult_by_dates`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_consult_by_dates` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor',concat(patient.first_name," ",patient.last_name) AS 'Patient', peea AS 'Motivo de consulta', consult_date AS 'Fecha de consulta', description AS 'Descripción de diagnóstico'
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_consult_by_dates` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT consult.consult_id AS 'ID', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor',concat(patient.first_name," ",patient.last_name) AS 'Patient', peea AS 'Consult motive', consult_date AS 'Consult date', description AS 'Diagnostic description'
     FROM doctor
     JOIN consult ON doctor.doctor_id = consult.doctor_id
     JOIN patient ON consult.patient_id = patient.patient_id
     JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
     JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
-    WHERE consult_date > in_start_date AND consult_date < in_end_date
-    ORDER BY COUNT(consult.consult_id) DESC$$
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    ORDER BY consult.consult_id$$
 
 DROP PROCEDURE IF EXISTS `get_consult_by_dates_doctor`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_consult_by_dates_doctor` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT consult.consult_id AS 'Consulta', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor'
-    FROM doctor
-    JOIN consult ON doctor.doctor_id = consult.doctor_id
-    JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
-    JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
-    WHERE consult_date > in_start_date AND consult_date < in_end_date
-    ORDER BY COUNT(consult.consult_id) DESC$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_consult_by_dates_doctor` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT concat(doctor.first_name,' ',doctor.last_name) AS 'Doctor', COUNT(consult.consult_id) AS 'Consults'
+    FROM doctor JOIN consult ON doctor.doctor_id = consult.doctor_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY doctor.doctor_id
+    ORDER BY doctor.first_name, doctor.last_name$$
 
 DROP PROCEDURE IF EXISTS `get_diagnostic_by_dates_chart`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_diagnostic_by_dates_chart` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT disease_catalog.disease_catalog_id, count(diagnostic.disease_catalog_id) AS 'Consult amount'
@@ -315,6 +333,11 @@ JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_
 WHERE patient_id = in_patient_id
 ORDER BY YEAR(consult_date), MONTH(consult_date), DAY(consult_date)$$
 
+DROP PROCEDURE IF EXISTS `get_med_by_id`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_med_by_id` (IN `in_med_id` INT)  SELECT Ingredient, Dose
+FROM medicine
+WHERE medicine_id = in_med_id$$
+
 DROP PROCEDURE IF EXISTS `get_med_id_name`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_med_id_name` ()  SELECT medicine_id, medicine_name
 FROM medicine
@@ -325,6 +348,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_patient` (IN `in_patient_id` IN
 SELECT * 
 FROM patient
 WHERE patient_id = in_patient_id$$
+
+DROP PROCEDURE IF EXISTS `get_patient_city_by_dates`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_patient_city_by_dates` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT city AS 'City', COUNT(city) AS 'Ammount of patients'
+    FROM patient JOIN consult
+    ON patient.patient_id = consult.patient_id
+    WHERE consult.consult_date BETWEEN in_start_date AND in_end_date
+    GROUP BY patient.city
+    ORDER BY patient.city$$
 
 DROP PROCEDURE IF EXISTS `get_patient_id_name`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_patient_id_name` ()  NO SQL
@@ -339,6 +370,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_prescription` (IN `in_prescript
     JOIN medicine ON recipe.medicine_id = medicine.medicine_id
     WHERE in_prescription_id = prescription.prescription_id
     ORDER BY medicine_name$$
+
+DROP PROCEDURE IF EXISTS `get_prescription_by_consult`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_prescription_by_consult` (IN `consult_id_input` INT)  SELECT consult_schedule AS 'Time', consult_date AS 'Date', consult_id AS 'Visit id', medicine_name AS 'Medicine name', instructions 
+    FROM consult JOIN prescription 
+    ON consult.prescription_id = prescription.prescription_id 
+    JOIN recipe ON prescription.prescription_id = recipe.prescription_id 
+    JOIN medicine ON recipe.medicine_id= medicine.medicine_id
+    WHERE consult_id_input = consult_id$$
+
+DROP PROCEDURE IF EXISTS `get_prescription_id_by_patient_id`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_prescription_id_by_patient_id` (IN `in_patient_id` INT)  SELECT prescription.prescription_id AS 'Prescription ID', concat(patient.first_name, ' ', patient.last_name) AS 'Patient', 
+    Sex, patient.Phone AS 'Patient Contact', consult.consult_date AS 'Date', concat(doctor.first_name, ' ', doctor.last_name) AS 'Doctor'  
+    FROM prescription JOIN consult
+    ON prescription.consult_id = consult.consult_id
+    JOIN patient ON consult.patient_id = patient.patient_id
+    JOIN doctor ON consult.doctor_id = doctor.doctor_id
+    WHERE in_patient_id = consult.patient_id
+    ORDER BY consult.consult_date DESC$$
 
 DROP PROCEDURE IF EXISTS `get_test`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_test` ()  SELECT test_id, test_name
@@ -399,6 +448,14 @@ JOIN test_instance ON test_instance.test_id = test.test_id
 JOIN answer ON answer.instance_id = test_instance.instance_id
 WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
 HAVING SUM(answer_value)>22$$
+
+DROP PROCEDURE IF EXISTS `get_upcoming_consults`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_upcoming_consults` ()  SELECT consult.consult_id AS 'ID', concat(doctor.first_name," ",doctor.last_name) AS 'Doctor',concat(patient.first_name," ",patient.last_name) AS 'Patient', peea AS 'Consult Motive', consult_date AS 'Consult date', consult_schedule AS 'Time'
+    FROM doctor
+    JOIN consult ON doctor.doctor_id = consult.doctor_id
+    JOIN patient ON consult.patient_id = patient.patient_id
+    WHERE consult.consult_date BETWEEN CURRENT_DATE() AND DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY)
+    ORDER BY consult_date, consult_schedule$$
 
 DROP PROCEDURE IF EXISTS `show_test_questions`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `show_test_questions` (IN `in_test_id` INT)  SELECT Question_id AS 'Question ID',Question
@@ -763,7 +820,8 @@ INSERT INTO `answer` (`answer_id`, `question_id`, `instance_id`, `answer_value`)
 (286, 28, 24, 1),
 (287, 29, 24, 1),
 (288, 30, 24, 1),
-(289, 31, 24, 1);
+(289, 31, 24, 1),
+(290, 18, 25, 1);
 
 -- --------------------------------------------------------
 
@@ -836,7 +894,7 @@ INSERT INTO `app_reporte` (`id`, `nombre_reporte`, `show_on_app`, `location`, `c
 (6, 'Tests', 1, 3, '[{\"identifier\":\"Tests\",\"expanded\":true,\"idp\":-1,\"node\":\"parent\",\"type\":\"report\",\"report\":[{\"identifier\":\"container1\",\"expanded\":true,\"idp\":0,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":11,\"node\":\"child\",\"type\":\"header\",\"text\":\"Test Instances By Patient\",\"size\":\"h2\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header12\",\"expanded\":false},{\"idp\":13,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space14\",\"expanded\":false},{\"idp\":1,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Test type\",\"default\":\"\",\"identifier\":\"dropdown2\",\"src\":\"get_test\",\"expanded\":false},{\"idp\":2,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Patient\",\"default\":\"\",\"identifier\":\"dropdown3\",\"src\":\"get_patient_id_name\",\"expanded\":false},{\"idp\":5,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show Test Instance\",\"sps\":[],\"fluid\":true,\"color\":\"blue\",\"position\":\"center\",\"identifier\":\"button6\",\"expanded\":false},{\"idp\":4,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_test_instances_by_patient\",\"trigger\":\"button6\",\"params\":[\"dropdown2\",\"dropdown3\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table5\",\"expanded\":false}]},{\"idp\":16,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"25\",\"identifier\":\"space17\",\"expanded\":false},{\"identifier\":\"container7\",\"expanded\":true,\"idp\":6,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":14,\"node\":\"child\",\"type\":\"header\",\"text\":\"Test Answers\",\"size\":\"h2\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header15\",\"expanded\":true},{\"idp\":17,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"20\",\"identifier\":\"space18\",\"expanded\":true},{\"identifier\":\"form24\",\"expanded\":true,\"idp\":23,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"identifier\":\"grid10\",\"expanded\":true,\"idp\":9,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":7,\"node\":\"child\",\"type\":\"input\",\"label\":\"Instance ID\",\"default\":\"\",\"identifier\":\"instance_id\",\"inputType\":\"number\",\"expanded\":false,\"placeholder\":\"0000\"},{\"idp\":8,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show test answers\",\"sps\":[],\"fluid\":true,\"color\":\"blue\",\"position\":\"center\",\"identifier\":\"button9\",\"expanded\":false}]}]},{\"identifier\":\"grid19\",\"expanded\":true,\"idp\":18,\"node\":\"parent\",\"centered\":false,\"cols\":\"5\",\"stretched\":false,\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":19,\"node\":\"child\",\"type\":\"header\",\"text\":\"Result\",\"size\":\"h3\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"res\",\"expanded\":true},{\"idp\":20,\"node\":\"child\",\"type\":\"input\",\"label\":\"Result\",\"default\":\"\",\"identifier\":\"input21\",\"inputType\":\"text\",\"expanded\":true,\"placeholder\":\"0\"},{\"idp\":22,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"get_test_result\",\"trigger\":\"button9\",\"params\":[\"instance_id\"],\"targets\":[\"input21\",\"meaning\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"res exec\",\"expanded\":false},{\"idp\":21,\"node\":\"child\",\"type\":\"input\",\"label\":\"Meaning\",\"default\":\"\",\"identifier\":\"meaning\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"Not depressed\"}]},{\"idp\":10,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_test_instance\",\"trigger\":\"button9\",\"params\":[\"instance_id\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table11\",\"expanded\":false}]}],\"max\":24,\"icon\":\"clipboard check\"}]', 'clipboard check'),
 (7, 'Doctor Dashboard', 1, 2, '[{\"identifier\":\"Doctor Dashboard\",\"expanded\":true,\"idp\":-1,\"node\":\"parent\",\"type\":\"report\",\"report\":[{\"identifier\":\"container4\",\"expanded\":true,\"idp\":3,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":4,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"\",\"default\":\"\",\"identifier\":\"dropdown5\",\"src\":\"get_doctor_id_name\",\"expanded\":true},{\"idp\":18,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show Doctor\",\"sps\":[],\"fluid\":true,\"color\":\"teal\",\"position\":\"center\",\"identifier\":\"show doctor\",\"expanded\":true},{\"idp\":19,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space20\",\"expanded\":false},{\"identifier\":\"container13\",\"expanded\":true,\"idp\":12,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"form6\",\"expanded\":true,\"idp\":5,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"identifier\":\"grid14\",\"expanded\":true,\"idp\":13,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":7,\"node\":\"child\",\"type\":\"input\",\"label\":\"ID\",\"default\":\"\",\"identifier\":\"ID\",\"inputType\":\"number\",\"expanded\":false,\"placeholder\":\"0000\"},{\"idp\":8,\"node\":\"child\",\"type\":\"input\",\"label\":\"License\",\"default\":\"\",\"identifier\":\"license\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"0000\"}]},{\"identifier\":\"grid15\",\"expanded\":true,\"idp\":14,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":9,\"node\":\"child\",\"type\":\"input\",\"label\":\"First Name\",\"default\":\"\",\"identifier\":\"fname\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"Jon\"},{\"idp\":10,\"node\":\"child\",\"type\":\"input\",\"label\":\"Last Name\",\"default\":\"\",\"identifier\":\"lname\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"Doe\"}]},{\"idp\":11,\"node\":\"child\",\"type\":\"input\",\"label\":\"Phone\",\"default\":\"\",\"identifier\":\"phone\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"1234567890\"}]},{\"identifier\":\"grid18\",\"expanded\":true,\"idp\":17,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":15,\"node\":\"child\",\"type\":\"button\",\"text\":\"Delete\",\"sps\":[],\"fluid\":false,\"color\":\"red\",\"position\":\"left\",\"identifier\":\"delete\",\"expanded\":false},{\"idp\":22,\"node\":\"child\",\"type\":\"button\",\"text\":\"Create\",\"sps\":[],\"fluid\":false,\"color\":\"green\",\"position\":\"center\",\"identifier\":\"create\",\"expanded\":false},{\"idp\":16,\"node\":\"child\",\"type\":\"button\",\"text\":\"Update\",\"sps\":[],\"fluid\":false,\"color\":\"blue\",\"position\":\"right\",\"identifier\":\"update\",\"expanded\":false}]}]},{\"idp\":6,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"get_doctor_by_id\",\"trigger\":\"show doctor\",\"params\":[\"dropdown5\"],\"targets\":[\"ID\",\"license\",\"fname\",\"lname\",\"phone\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"show patient\",\"expanded\":true},{\"idp\":23,\"node\":\"child\",\"type\":\"button\",\"text\":\"Clear\",\"sps\":[],\"fluid\":true,\"color\":\"grey\",\"position\":\"center\",\"identifier\":\"clear\",\"expanded\":false}]},{\"idp\":20,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"clear_doctor\",\"trigger\":\"clear\",\"params\":[],\"targets\":[\"ID\",\"license\",\"fname\",\"lname\",\"phone\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"clear exec\",\"expanded\":false},{\"idp\":21,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_doctor\",\"trigger\":\"create\",\"params\":[\"ID\",\"fname\",\"lname\",\"phone\",\"license\"],\"targets\":[\"ID\",\"license\",\"fname\",\"lname\",\"phone\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"create exec\",\"expanded\":false},{\"idp\":24,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"delete_doctor\",\"trigger\":\"delete\",\"params\":[\"ID\"],\"targets\":[\"ID\",\"license\",\"fname\",\"lname\",\"phone\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"del exec\",\"expanded\":false},{\"idp\":25,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"update_doctor\",\"trigger\":\"update\",\"params\":[\"ID\",\"fname\",\"lname\",\"license\",\"phone\"],\"targets\":[\"ID\",\"license\",\"fname\",\"lname\",\"phone\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"update exec\",\"expanded\":false}],\"max\":26,\"icon\":\"user md\"}]', 'user md'),
 (8, 'New Visit', 1, 6, '[{\"identifier\":\"New Visit\",\"expanded\":true,\"idp\":-1,\"node\":\"parent\",\"type\":\"report\",\"report\":[{\"identifier\":\"Consult cont\",\"expanded\":true,\"idp\":0,\"node\":\"parent\",\"stacked\":true,\"raised\":true,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"grid38\",\"expanded\":true,\"idp\":37,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":1,\"node\":\"child\",\"type\":\"header\",\"text\":\"Consult\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"Consult\",\"expanded\":true,\"icon_header\":\"weight\"},{\"idp\":36,\"node\":\"child\",\"type\":\"input\",\"label\":\"Consult ID\",\"default\":\"\",\"identifier\":\"cons id\",\"inputType\":\"number\",\"expanded\":true,\"placeholder\":\"DO NOT FILL\"}]},{\"idp\":13,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space14\",\"expanded\":true},{\"identifier\":\"form3\",\"expanded\":true,\"idp\":2,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"identifier\":\"grid5\",\"expanded\":true,\"idp\":4,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":7,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Patient\",\"default\":\"\",\"identifier\":\"patent\",\"src\":\"get_patient_id_name\",\"expanded\":false},{\"idp\":8,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Doctor\",\"default\":\"\",\"identifier\":\"doctor\",\"src\":\"get_doctor_id_name\",\"expanded\":false}]},{\"identifier\":\"grid4\",\"expanded\":true,\"idp\":3,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":6,\"node\":\"child\",\"type\":\"input\",\"label\":\"Hour scheduled \",\"default\":\"\",\"identifier\":\"hour\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"24:59\"},{\"idp\":9,\"node\":\"child\",\"type\":\"input\",\"label\":\"Date scheduled\",\"default\":\"\",\"identifier\":\"Date\",\"inputType\":\"date\",\"expanded\":false,\"placeholder\":\"\"}]},{\"idp\":10,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space11\",\"expanded\":false},{\"idp\":5,\"node\":\"child\",\"type\":\"input\",\"label\":\"Motive\",\"default\":\"\",\"identifier\":\"Motive\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"Pains\"},{\"idp\":12,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space13\",\"expanded\":false},{\"idp\":21,\"node\":\"child\",\"type\":\"button\",\"text\":\"Create consult\",\"sps\":[],\"fluid\":true,\"color\":\"green\",\"position\":\"left\",\"identifier\":\"consult\",\"expanded\":false}]},{\"idp\":35,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_consult\",\"trigger\":\"consult\",\"params\":[\"patent\",\"doctor\",\"Motive\",\"hour\",\"Date\"],\"targets\":[\"cons id\",\"hour\",\"Date\",\"Motive\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Consult created, you can now create a test instance\",\"order\":\"\",\"identifier\":\"consult new exec\",\"expanded\":false}]},{\"idp\":15,\"node\":\"child\",\"type\":\"divider\",\"identifier\":\"divider16\",\"expanded\":false},{\"identifier\":\"container15\",\"expanded\":true,\"idp\":14,\"node\":\"parent\",\"stacked\":false,\"raised\":true,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":16,\"node\":\"child\",\"type\":\"header\",\"text\":\"Test\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header17\",\"expanded\":false,\"icon_header\":\"edit outline\"},{\"idp\":18,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space19\",\"expanded\":false},{\"idp\":17,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Choose test\",\"default\":\"\",\"identifier\":\"test drop\",\"src\":\"get_test\",\"expanded\":false},{\"idp\":19,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show test questions\",\"sps\":[],\"fluid\":true,\"color\":\"teal\",\"position\":\"left\",\"identifier\":\"test\",\"expanded\":false},{\"idp\":38,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_test_instance\",\"trigger\":\"instance\",\"params\":[\"test drop\",\"cons id\"],\"targets\":[\"instance id\",\"question id\",\"answer\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Instance created, you can now submit answers\",\"order\":\"\",\"identifier\":\"instance exec\",\"expanded\":false},{\"idp\":20,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"show_test_questions\",\"trigger\":\"test\",\"params\":[\"test drop\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"question t\",\"expanded\":false},{\"idp\":29,\"node\":\"child\",\"type\":\"button\",\"text\":\"Create new instance (just press once before submiting answers)\",\"sps\":[],\"fluid\":true,\"color\":\"olive\",\"position\":\"center\",\"identifier\":\"instance\",\"expanded\":true},{\"idp\":31,\"node\":\"child\",\"type\":\"divider\",\"identifier\":\"divider32\",\"expanded\":true},{\"identifier\":\"form23\",\"expanded\":true,\"idp\":22,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"identifier\":\"grid27\",\"expanded\":false,\"idp\":26,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":30,\"node\":\"child\",\"type\":\"input\",\"label\":\"Instance ID\",\"default\":\"\",\"identifier\":\"instance id\",\"inputType\":\"number\",\"expanded\":false,\"placeholder\":\"0000\"},{\"idp\":23,\"node\":\"child\",\"type\":\"input\",\"label\":\"Question ID\",\"default\":\"\",\"identifier\":\"question id\",\"inputType\":\"number\",\"expanded\":false,\"placeholder\":\"0000\"},{\"idp\":24,\"node\":\"child\",\"type\":\"input\",\"label\":\"Answer Value\",\"default\":\"\",\"identifier\":\"answer\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"0\"}]},{\"idp\":25,\"node\":\"child\",\"type\":\"button\",\"text\":\"Submit answer\",\"sps\":[],\"fluid\":true,\"color\":\"orange\",\"position\":\"left\",\"identifier\":\"button26\",\"expanded\":false},{\"idp\":34,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"submit_answer\",\"trigger\":\"button26\",\"params\":[\"instance id\",\"question id\",\"answer\"],\"targets\":[\"instance id\",\"question id\",\"answer\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Answer submited successfully\",\"order\":\"-1\",\"identifier\":\"answer exec\",\"expanded\":false}]},{\"idp\":33,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"25\",\"identifier\":\"space34\",\"expanded\":true},{\"idp\":32,\"node\":\"child\",\"type\":\"header\",\"text\":\"Current Test Answers\",\"size\":\"h2\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header33\",\"expanded\":true,\"icon_header\":\"check square outline\"},{\"idp\":28,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_test_instance\",\"trigger\":\"button26\",\"params\":[\"instance id\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"0\",\"identifier\":\"current table\",\"expanded\":false},{\"idp\":44,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show test result\",\"sps\":[],\"fluid\":true,\"color\":\"blue\",\"position\":\"center\",\"identifier\":\"button45\",\"expanded\":false},{\"idp\":39,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"20\",\"identifier\":\"space40\",\"expanded\":false},{\"identifier\":\"grid41\",\"expanded\":false,\"idp\":40,\"node\":\"parent\",\"centered\":true,\"cols\":\"3\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":41,\"node\":\"child\",\"type\":\"header\",\"text\":\"Result\",\"size\":\"h2\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header42\",\"expanded\":false},{\"idp\":42,\"node\":\"child\",\"type\":\"input\",\"label\":\"Result\",\"default\":\"\",\"identifier\":\"amount\",\"inputType\":\"number\",\"expanded\":false,\"placeholder\":\"0\"},{\"idp\":43,\"node\":\"child\",\"type\":\"input\",\"label\":\"Description\",\"default\":\"\",\"identifier\":\"desc\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"Status\"},{\"idp\":47,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"get_test_result\",\"trigger\":\"button45\",\"params\":[\"instance id\"],\"targets\":[\"amount\",\"desc\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"execution_single48\",\"expanded\":false}]}]},{\"idp\":49,\"node\":\"child\",\"type\":\"divider\",\"identifier\":\"divider50\",\"expanded\":false},{\"identifier\":\"grid52\",\"expanded\":true,\"idp\":51,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"identifier\":\"container49\",\"expanded\":true,\"idp\":48,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":63,\"node\":\"child\",\"type\":\"header\",\"text\":\"Diagnostic\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"diag h\",\"expanded\":false,\"icon_header\":\"stethoscope\"},{\"idp\":62,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"15\",\"identifier\":\"space63\",\"expanded\":true},{\"idp\":53,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Choose from catalog\",\"default\":\"\",\"identifier\":\"DIAG DROP\",\"src\":\"get_diagnostic_id_name\",\"expanded\":true},{\"idp\":69,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show from catalog\",\"sps\":[],\"fluid\":true,\"color\":\"violet\",\"position\":\"center\",\"identifier\":\"button70\",\"expanded\":false},{\"idp\":68,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"20\",\"identifier\":\"space69\",\"expanded\":true},{\"idp\":70,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"get_disease\",\"trigger\":\"button70\",\"params\":[\"DIAG DROP\"],\"targets\":[\"icd10\",\"icd9\",\"diag desc\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"dis exec\",\"expanded\":false},{\"identifier\":\"form56\",\"expanded\":true,\"idp\":55,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"identifier\":\"grid60\",\"expanded\":true,\"idp\":59,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":56,\"node\":\"child\",\"type\":\"input\",\"label\":\"ICD10\",\"default\":\"\",\"identifier\":\"icd10\",\"inputType\":\"text\",\"expanded\":true},{\"idp\":57,\"node\":\"child\",\"type\":\"input\",\"label\":\"ICD9\",\"default\":\"\",\"identifier\":\"icd9\",\"inputType\":\"text\",\"expanded\":false}]},{\"idp\":61,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space62\",\"expanded\":true},{\"idp\":58,\"node\":\"child\",\"type\":\"input\",\"label\":\"Description\",\"default\":\"\",\"identifier\":\"diag desc\",\"inputType\":\"text\",\"expanded\":false},{\"idp\":60,\"node\":\"child\",\"type\":\"button\",\"text\":\"Diagnose\",\"sps\":[],\"fluid\":true,\"color\":\"yellow\",\"position\":\"left\",\"identifier\":\"button61\",\"expanded\":false},{\"idp\":64,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_diagnosis\",\"trigger\":\"button61\",\"params\":[\"cons id\",\"DIAG DROP\"],\"targets\":[\"icd10\",\"icd9\",\"diag desc\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Diagnosis saved\",\"order\":\"\",\"identifier\":\"diag exec\",\"expanded\":false}]}]},{\"identifier\":\"container51\",\"expanded\":false,\"idp\":50,\"node\":\"parent\",\"stacked\":false,\"raised\":true,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"grid72\",\"expanded\":true,\"idp\":71,\"node\":\"parent\",\"centered\":true,\"cols\":\"2\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":74,\"node\":\"child\",\"type\":\"header\",\"text\":\"Prescription\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header75\",\"expanded\":false,\"icon_header\":\"pills\"},{\"idp\":72,\"node\":\"child\",\"type\":\"input\",\"label\":\"Prescription ID\",\"default\":\"\",\"identifier\":\"presc id\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"DO NOT MODIFY\"}]},{\"idp\":73,\"node\":\"child\",\"type\":\"button\",\"text\":\"Create prescription ID (once before prescribing)\",\"sps\":[],\"fluid\":true,\"color\":\"violet\",\"position\":\"left\",\"identifier\":\"create presc\",\"expanded\":false},{\"idp\":78,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_prescription_id\",\"trigger\":\"create presc\",\"params\":[\"cons id\"],\"targets\":[\"presc id\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Prescription created successfully, you may now prescribe medication\",\"order\":\"\",\"identifier\":\"prescr exec\",\"expanded\":true},{\"identifier\":\"container86\",\"expanded\":true,\"idp\":85,\"node\":\"parent\",\"stacked\":false,\"raised\":true,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"container87\",\"expanded\":true,\"idp\":86,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":91,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"get_med_by_id\",\"trigger\":\"button81\",\"params\":[\"med drop\"],\"targets\":[\"ingridient\",\"dose\"],\"onLoad\":false,\"showSuccess\":false,\"message\":\"Success message\",\"order\":\"\",\"identifier\":\"show med\",\"expanded\":false},{\"identifier\":\"grid80\",\"expanded\":true,\"idp\":79,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":76,\"node\":\"child\",\"type\":\"dropdown\",\"label\":\"Medicine\",\"default\":\"\",\"identifier\":\"med drop\",\"src\":\"get_med_id_name\",\"expanded\":false},{\"idp\":80,\"node\":\"child\",\"type\":\"button\",\"text\":\"Show details\",\"sps\":[],\"fluid\":false,\"color\":\"orange\",\"position\":\"left\",\"identifier\":\"button81\",\"expanded\":false}]}]},{\"idp\":87,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"20\",\"identifier\":\"space88\",\"expanded\":false},{\"identifier\":\"grid85\",\"expanded\":true,\"idp\":84,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":82,\"node\":\"child\",\"type\":\"input\",\"label\":\"Ingridient\",\"default\":\"\",\"identifier\":\"ingridient\",\"inputType\":\"text\",\"expanded\":false},{\"idp\":83,\"node\":\"child\",\"type\":\"input\",\"label\":\"Dose\",\"default\":\"\",\"identifier\":\"dose\",\"inputType\":\"text\",\"expanded\":false}]},{\"idp\":95,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space96\",\"expanded\":false}]},{\"idp\":90,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"15\",\"identifier\":\"space91\",\"expanded\":false},{\"identifier\":\"container90\",\"expanded\":true,\"idp\":89,\"node\":\"parent\",\"stacked\":false,\"raised\":true,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"form82\",\"expanded\":true,\"idp\":81,\"node\":\"parent\",\"type\":\"form\",\"form\":[{\"idp\":88,\"node\":\"child\",\"type\":\"input\",\"label\":\"Instructions\",\"default\":\"\",\"identifier\":\"instructions\",\"inputType\":\"text\",\"expanded\":false,\"placeholder\":\"x per day, for y days \"},{\"idp\":77,\"node\":\"child\",\"type\":\"button\",\"text\":\"Prescribe Medication\",\"sps\":[],\"fluid\":true,\"color\":\"green\",\"position\":\"left\",\"identifier\":\"prescribe\",\"expanded\":true},{\"idp\":92,\"node\":\"child\",\"type\":\"execution_single\",\"id\":\"\",\"src\":\"create_recipe\",\"trigger\":\"prescribe\",\"params\":[\"presc id\",\"med drop\",\"instructions\"],\"targets\":[\"instructions\"],\"onLoad\":false,\"showSuccess\":true,\"message\":\"Medicine prescribed successfully.\",\"order\":\"-1\",\"identifier\":\"create rep\",\"expanded\":false}]}]}]}]},{\"idp\":94,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"15\",\"identifier\":\"space95\",\"expanded\":false},{\"identifier\":\"container94\",\"expanded\":true,\"idp\":93,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":96,\"node\":\"child\",\"type\":\"header\",\"text\":\"Current Prescription\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"current presc\",\"expanded\":false,\"icon_header\":\"clipboard list\"},{\"idp\":97,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_prescription\",\"trigger\":\"prescribe\",\"params\":[\"presc id\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table98\",\"expanded\":false}]}],\"max\":98,\"icon\":\"plus\"}]', 'plus'),
-(9, 'Home dashboard', 1, 0, '[{\"identifier\":\"Home dashboard\",\"expanded\":true,\"idp\":-1,\"node\":\"parent\",\"type\":\"report\",\"report\":[{\"identifier\":\"container1\",\"expanded\":true,\"idp\":0,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"identifier\":\"grid5\",\"expanded\":true,\"idp\":4,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":3,\"node\":\"child\",\"type\":\"input\",\"label\":\"From \",\"default\":\"01 01 2018\",\"identifier\":\"from date\",\"inputType\":\"date\",\"expanded\":true,\"placeholder\":\"01 01 2018\"},{\"idp\":2,\"node\":\"child\",\"type\":\"input\",\"label\":\"To\",\"default\":\"12 31 2018\",\"identifier\":\"to date\",\"inputType\":\"date\",\"expanded\":true,\"placeholder\":\"12 31 2018\"},{\"idp\":5,\"node\":\"child\",\"type\":\"button\",\"text\":\"Search\",\"sps\":[],\"fluid\":true,\"color\":\"blue\",\"position\":\"center\",\"identifier\":\"update\",\"expanded\":false}]},{\"identifier\":\"grid9\",\"expanded\":true,\"idp\":8,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":9,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"get_diagnostic_by_dates_chart\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"chartType\":\"bar\",\"onLoad\":true,\"order\":\"\",\"identifier\":\"chart10\",\"expanded\":false,\"luminosity\":\"dark\",\"hue\":\"blue\"},{\"idp\":10,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"\",\"trigger\":\"\",\"params\":[],\"chartType\":\"line\",\"onLoad\":false,\"order\":0,\"identifier\":\"chart11\",\"expanded\":false}]},{\"identifier\":\"grid12\",\"expanded\":true,\"idp\":11,\"node\":\"parent\",\"centered\":false,\"cols\":\"2\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":12,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_diagnostic_by_dats_legend\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table13\",\"expanded\":false}]}]}],\"max\":13,\"icon\":\"home\"}]', 'home');
+(9, 'Home dashboard', 1, 0, '[{\"identifier\":\"Home dashboard\",\"expanded\":true,\"idp\":-1,\"node\":\"parent\",\"type\":\"report\",\"report\":[{\"identifier\":\"container15\",\"expanded\":true,\"idp\":14,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":18,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space19\",\"expanded\":false},{\"idp\":16,\"node\":\"child\",\"type\":\"header\",\"text\":\"Upcoming consults\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header17\",\"expanded\":false,\"icon_header\":\"calendar plus outline\"},{\"idp\":17,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_upcoming_consults\",\"trigger\":\"\",\"params\":[],\"onLoad\":true,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table18\",\"expanded\":false}]},{\"idp\":15,\"node\":\"child\",\"type\":\"divider\",\"identifier\":\"divider16\",\"expanded\":false},{\"identifier\":\"container1\",\"expanded\":true,\"idp\":0,\"node\":\"parent\",\"stacked\":false,\"raised\":false,\"basic\":false,\"type\":\"container\",\"container\":[{\"idp\":20,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space21\",\"expanded\":false},{\"idp\":19,\"node\":\"child\",\"type\":\"header\",\"text\":\"Statistics by date\",\"size\":\"h1\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header20\",\"expanded\":true,\"icon_header\":\"chart bar outline\"},{\"idp\":21,\"node\":\"child\",\"type\":\"space\",\"pixels\":10,\"identifier\":\"space22\",\"expanded\":false},{\"identifier\":\"grid5\",\"expanded\":true,\"idp\":4,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":3,\"node\":\"child\",\"type\":\"input\",\"label\":\"From \",\"default\":\"01 01 2018\",\"identifier\":\"from date\",\"inputType\":\"date\",\"expanded\":true,\"placeholder\":\"01 01 2018\"},{\"idp\":2,\"node\":\"child\",\"type\":\"input\",\"label\":\"To\",\"default\":\"12 31 2018\",\"identifier\":\"to date\",\"inputType\":\"date\",\"expanded\":true,\"placeholder\":\"12 31 2018\"},{\"idp\":5,\"node\":\"child\",\"type\":\"button\",\"text\":\"Search\",\"sps\":[],\"fluid\":true,\"color\":\"blue\",\"position\":\"center\",\"identifier\":\"update\",\"expanded\":false}]},{\"identifier\":\"grid26\",\"expanded\":true,\"idp\":25,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":26,\"node\":\"child\",\"type\":\"header\",\"text\":\"Amount of diagnostics\",\"size\":\"h3\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header27\",\"expanded\":false},{\"idp\":27,\"node\":\"child\",\"type\":\"header\",\"text\":\"Consults by Doctor\",\"size\":\"h3\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header28\",\"expanded\":false}]},{\"identifier\":\"grid9\",\"expanded\":true,\"idp\":8,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":9,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"get_diagnostic_by_dates_chart\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"chartType\":\"bar\",\"onLoad\":true,\"order\":\"\",\"identifier\":\"chart10\",\"expanded\":false,\"luminosity\":\"dark\",\"hue\":\"yellow\"},{\"idp\":10,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"get_consult_by_dates_doctor\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"chartType\":\"doughnut\",\"onLoad\":false,\"order\":\"\",\"identifier\":\"chart11\",\"expanded\":false,\"luminosity\":\"dark\",\"hue\":\"red\"}]},{\"identifier\":\"grid12\",\"expanded\":true,\"idp\":11,\"node\":\"parent\",\"centered\":false,\"cols\":\"2\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":12,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_diagnostic_by_dats_legend\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table13\",\"expanded\":false},{\"idp\":13,\"node\":\"child\",\"type\":\"table\",\"id\":\"\",\"src\":\"get_consult_by_dates_doctor\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"onLoad\":false,\"xlsName\":\"data\",\"order\":\"\",\"identifier\":\"table14\",\"expanded\":false}]},{\"idp\":31,\"node\":\"child\",\"type\":\"space\",\"pixels\":\"40\",\"identifier\":\"space32\",\"expanded\":false},{\"identifier\":\"grid29\",\"expanded\":true,\"idp\":28,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":29,\"node\":\"child\",\"type\":\"header\",\"text\":\"Patients by sex\",\"size\":\"h3\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header30\",\"expanded\":false},{\"idp\":30,\"node\":\"child\",\"type\":\"header\",\"text\":\"Patients by age\",\"size\":\"h3\",\"position\":\"left\",\"icon_button\":\"\",\"upper_icon\":false,\"subtext\":\"\",\"color\":\"black\",\"identifier\":\"header31\",\"expanded\":false}]},{\"identifier\":\"grid23\",\"expanded\":true,\"idp\":22,\"node\":\"parent\",\"centered\":false,\"cols\":\"equal\",\"divided\":false,\"type\":\"grid\",\"grid\":[{\"idp\":24,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"count_patients_by_sex\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"chartType\":\"pie\",\"onLoad\":false,\"order\":\"\",\"identifier\":\"chart25\",\"expanded\":false,\"luminosity\":\"bright\",\"hue\":\"blue\"},{\"idp\":23,\"node\":\"child\",\"type\":\"chart\",\"id\":\"\",\"src\":\"count_patients_by_age\",\"trigger\":\"update\",\"params\":[\"from date\",\"to date\"],\"chartType\":\"bar\",\"onLoad\":false,\"order\":\"\",\"identifier\":\"chart24\",\"expanded\":false,\"luminosity\":\"dark\"}]}]}],\"max\":32,\"icon\":\"home\"}]', 'home');
 
 -- --------------------------------------------------------
 
@@ -877,7 +935,9 @@ INSERT INTO `consult` (`consult_id`, `patient_id`, `doctor_id`, `peea`, `consult
 (16, 1, 1, 'alucinaciones', '16:20', '2018-09-28'),
 (25, 4, 3, 'Headache', '12:56', '2018-11-21'),
 (26, 1, 3, 'Chest pains', '12:34', '0001-01-01'),
-(27, 6, 1, 'Headache', '10:53', '2018-11-21');
+(27, 6, 1, 'Headache', '10:53', '2018-11-21'),
+(28, 6, 2, 'Angry all the time', '11:34', '2014-12-14'),
+(29, 3, 3, 'Family problems', '7:23', '2018-11-24');
 
 -- --------------------------------------------------------
 
@@ -1974,7 +2034,7 @@ INSERT INTO `patient` (`patient_id`, `first_name`, `last_name`, `sex`, `rfc`, `p
 (3, 'Monste', 'Aguayo', 'F', 'MMA651103', '8219948051', 'Allende', 'Col. Leal', 'm_aguayo@hotmail.com', '1965-11-03'),
 (4, 'Ramon', 'Montreal', 'M', 'GFMA790918', '8113040583', 'Monterrey', 'Col. Independencia', 'g79montreal@gmail.com', '1979-09-18'),
 (5, 'Rogelio', 'Lopez', 'M', 'PAT1231231', '8181181881', 'Saltillo', 'Col. Herradura', 'rlopez@hotmail.com', '1999-10-10'),
-(6, ' David', 'Cantu', 'M', 'DAC0004211234', '8115822719', 'Monterrey', 'Cumbres', 'dcantu@gmail.com', '2000-04-21');
+(6, 'David', 'Cantu', 'M', 'DAC0004211234', '8115822719', 'Monterrey', 'Cumbres', 'dcantu@gmail.com', '2000-04-21');
 
 -- --------------------------------------------------------
 
@@ -2010,7 +2070,8 @@ INSERT INTO `prescription` (`prescription_id`, `consult_id`) VALUES
 (15, 15),
 (16, 16),
 (17, 26),
-(18, 27);
+(18, 27),
+(19, 28);
 
 -- --------------------------------------------------------
 
@@ -2085,6 +2146,7 @@ INSERT INTO `recipe` (`medicine_id`, `prescription_id`, `instructions`) VALUES
 (1, 3, 'tomar una diaria durante 5 días'),
 (1, 4, 'tomar una diaria durante 5 días'),
 (1, 18, '2 every day for 8 days'),
+(1, 19, '2 per week'),
 (2, 1, 'aumentar iterativamente en dosis de 5 mg'),
 (2, 3, 'aumentar iterativamente en dosis de 5 mg'),
 (2, 17, '2 per day for 10 days'),
@@ -2157,7 +2219,8 @@ INSERT INTO `test_instance` (`instance_id`, `test_id`, `consult_id`) VALUES
 (16, 2, 14),
 (21, 2, 25),
 (22, 2, 26),
-(24, 2, 27);
+(24, 2, 27),
+(25, 2, 28);
 
 --
 -- Indexes for dumped tables
@@ -2267,7 +2330,7 @@ ALTER TABLE `test_instance`
 -- AUTO_INCREMENT for table `answer`
 --
 ALTER TABLE `answer`
-  MODIFY `answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=290;
+  MODIFY `answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=291;
 
 --
 -- AUTO_INCREMENT for table `app_reporte`
@@ -2279,7 +2342,7 @@ ALTER TABLE `app_reporte`
 -- AUTO_INCREMENT for table `consult`
 --
 ALTER TABLE `consult`
-  MODIFY `consult_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `consult_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `patient`
@@ -2291,13 +2354,13 @@ ALTER TABLE `patient`
 -- AUTO_INCREMENT for table `prescription`
 --
 ALTER TABLE `prescription`
-  MODIFY `prescription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `prescription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `test_instance`
 --
 ALTER TABLE `test_instance`
-  MODIFY `instance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `instance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- Constraints for dumped tables
