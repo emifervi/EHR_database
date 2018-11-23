@@ -34,7 +34,7 @@ $$ DELIMITER ;
 
 /* Get diagnosis and # of times with icd10*/
 DELIMITER $$
-CREATE PROCEDURE get_diagnostic_by_dats_legend (IN in_start_date DATE, IN in_end_date DATE)
+CREATE PROCEDURE get_diagnostic_by_dates_legend (IN in_start_date DATE, IN in_end_date DATE)
     SELECT disease_catalog.disease_catalog_id AS 'ID' ,ICD10,ICD9, description as 'Description'
     FROM consult 
     JOIN diagnostic ON consult.consult_id  = diagnostic.consult_id
@@ -64,4 +64,43 @@ CREATE PROCEDURE get_consult_by_dates_doctor (IN in_start_date DATE, IN in_end_d
     WHERE consult_date BETWEEN in_start_date AND in_end_date
     GROUP BY doctor.doctor_id
     ORDER BY doctor.first_name, doctor.last_name
+$$ DELIMITER ;
+
+/*Get diseases by season */
+DELIMITER $$
+CREATE PROCEDURE get_diseases_by_season()
+SELECT 'Spring', disease_catalog.description , count(consult.consult_id) as 'Times'
+FROM consult
+JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+WHERE MONTH(consult.consult_date) IN (3,4,5)
+GROUP BY disease_catalog.description
+
+UNION
+
+SELECT 'Summer', disease_catalog.description ,count(consult.consult_id) as 'Times'
+FROM consult
+JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+WHERE MONTH(consult.consult_date) IN (6,7,8)
+GROUP BY disease_catalog.description
+
+UNION
+
+SELECT 'Fall', disease_catalog.description ,count(consult.consult_id) as 'Times'
+FROM consult
+JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+WHERE MONTH(consult.consult_date) IN (9,10,11)
+GROUP BY disease_catalog.description
+
+UNION
+
+SELECT 'Winter', disease_catalog.description ,count(consult.consult_id) as 'Times'
+FROM consult
+JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+WHERE MONTH(consult.consult_date) IN (12,1,2)
+GROUP BY disease_catalog.description
+
 $$ DELIMITER ;
