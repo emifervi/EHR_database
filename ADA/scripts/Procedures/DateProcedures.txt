@@ -104,3 +104,12 @@ WHERE MONTH(consult.consult_date) IN (12,1,2)
 GROUP BY disease_catalog.description
 
 $$ DELIMITER ;
+
+
+DELIMITER $$ 
+CREATE PROCEDURE get_medicine_count()
+SELECT medicine_name, COUNT(recipe.medicine_id)
+    FROM medicine JOIN recipe ON medicine.medicine_id = recipe.medicine_id
+    GROUP BY medicine_name
+    ORDER BY medicine_name
+$$ DELIMITER ;

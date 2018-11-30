@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 23, 2018 at 10:11 PM
+-- Generation Time: Dec 01, 2018 at 12:39 AM
 -- Server version: 10.1.34-MariaDB
 -- PHP Version: 7.2.8
 
@@ -327,6 +327,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_consult_by_dates_doctor` (IN `i
     GROUP BY doctor.doctor_id
     ORDER BY doctor.first_name, doctor.last_name$$
 
+DROP PROCEDURE IF EXISTS `get_diagnosis_by_last_name`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_diagnosis_by_last_name` (IN `in_patient_last_name` VARCHAR(20))  SELECT DISTINCT
+    CONCAT(patient.first_name,' ', patient.last_name) AS 'Name of Patient',
+    CAST(
+        DATEDIFF(
+            CURRENT_DATE(), patient.date_of_birth) / 365 AS INT
+        ) AS 'Age',
+        disease_catalog.description
+    FROM patient
+    JOIN consult ON patient.patient_id = consult.patient_id
+    JOIN diagnostic ON consult.consult_id = diagnostic.consult_id
+    JOIN disease_catalog ON diagnostic.disease_catalog_id = disease_catalog.disease_catalog_id
+    WHERE
+        patient.last_name = in_patient_last_name
+    ORDER BY
+        disease_catalog.disease_catalog_id$$
+
 DROP PROCEDURE IF EXISTS `get_diagnostic_by_dates`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_diagnostic_by_dates` (IN `in_start_date` DATE, IN `in_end_date` DATE)  SELECT description AS 'Description', count(diagnostic.disease_catalog_id) AS 'Consult amount'
     FROM consult 
@@ -506,6 +523,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_upcoming_consults` ()  SELECT c
     JOIN patient ON consult.patient_id = patient.patient_id
     WHERE consult.consult_date BETWEEN CURRENT_DATE() AND DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY)
     ORDER BY consult_date, consult_schedule$$
+
+DROP PROCEDURE IF EXISTS `get_visits_count`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_visits_count` ()  SELECT CONCAT(patient.first_name, ' ', patient.last_name) as 'Name', COUNT(*) as 'No. Visits'
+FROM patient
+JOIN consult ON consult.patient_id = patient.patient_id
+GROUP BY consult.patient_id
+ORDER BY patient.first_name, patient.last_name$$
 
 DROP PROCEDURE IF EXISTS `show_test_questions`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `show_test_questions` (IN `in_test_id` INT)  SELECT Question_id AS 'Question ID',Question
@@ -987,7 +1011,11 @@ INSERT INTO `consult` (`consult_id`, `patient_id`, `doctor_id`, `peea`, `consult
 (26, 1, 3, 'Chest pains', '12:34', '0001-01-01'),
 (27, 6, 1, 'Headache', '10:53', '2018-11-21'),
 (28, 6, 2, 'Angry all the time', '11:34', '2014-12-14'),
-(29, 3, 3, 'Family problems', '7:23', '2018-11-24');
+(29, 3, 3, 'Family problems', '7:23', '2018-11-24'),
+(30, 6, 1, 'Hallucinations', '12:34', '2018-12-12'),
+(31, 1, 1, 'Migranes', '8:30', '2018-12-05'),
+(32, 4, 4, 'Migranes', '7:00', '2018-12-06'),
+(33, 4, 4, 'Cough', '7:00', '2018-12-03');
 
 -- --------------------------------------------------------
 
@@ -2392,7 +2420,7 @@ ALTER TABLE `app_reporte`
 -- AUTO_INCREMENT for table `consult`
 --
 ALTER TABLE `consult`
-  MODIFY `consult_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `consult_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `patient`
