@@ -38,46 +38,74 @@ WHERE test_id = in_test_id
 $$ DELIMITER
 
 DELIMITER $$
-CREATE PROCEDURE get_test_result(IN in_instance_id INT)
-SELECT SUM(answer_value) AS Result, 'Not depressed' AS Meaning
-FROM questions JOIN test
-ON questions.test_id = test.test_id
-JOIN test_instance ON test_instance.test_id = test.test_id
-JOIN answer ON answer.instance_id = test_instance.instance_id
-WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
-HAVING SUM(answer_value)<8
-UNION
-SELECT SUM(answer_value), 'Minor/mild depression'
-FROM questions JOIN test
-ON questions.test_id = test.test_id
-JOIN test_instance ON test_instance.test_id = test.test_id
-JOIN answer ON answer.instance_id = test_instance.instance_id
-WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
-HAVING SUM(answer_value)>7 AND SUM(answer_value)<14 
-UNION
-SELECT SUM(answer_value), 'Moderate depression'
-FROM questions JOIN test
-ON questions.test_id = test.test_id
-JOIN test_instance ON test_instance.test_id = test.test_id
-JOIN answer ON answer.instance_id = test_instance.instance_id
-WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
-HAVING SUM(answer_value)>13 AND SUM(answer_value)<19
-UNION
-SELECT SUM(answer_value), 'Severe depression'
-FROM questions JOIN test
-ON questions.test_id = test.test_id
-JOIN test_instance ON test_instance.test_id = test.test_id
-JOIN answer ON answer.instance_id = test_instance.instance_id
-WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
-HAVING SUM(answer_value)>18 AND SUM(answer_value)<23 
-UNION
-SELECT SUM(answer_value), 'Very severe depression'
-FROM questions JOIN test
-ON questions.test_id = test.test_id
-JOIN test_instance ON test_instance.test_id = test.test_id
-JOIN answer ON answer.instance_id = test_instance.instance_id
-WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
-HAVING SUM(answer_value)>22
+CREATE PROCEDURE get_test_result(IN in_instance_id INT, IN in_test_id INT)
+IF in_test_id = 1 THEN
+    SELECT SUM(answer_value) AS Result, 'Not depressed' AS 'Tipo de depresion', 'NA' AS 'Ansiedad psiquica', 'NA' AS 'Ansiedad somatica'    
+    FROM questions JOIN test
+    ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+    HAVING SUM(answer_value)<8
+    UNION
+    SELECT SUM(answer_value), 'Minor/mild depression' AS 'Tipo de depresion', 'NA' AS 'Ansiedad psiquica', 'NA' AS 'Ansiedad somatica'
+    FROM questions JOIN test
+    ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+    HAVING SUM(answer_value)>7 AND SUM(answer_value)<14 
+    UNION
+    SELECT SUM(answer_value), 'Moderate depression' AS 'Tipo de depresion', 'NA' AS 'Ansiedad psiquica', 'NA' AS 'Ansiedad somatica'
+    FROM questions JOIN test
+    ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+    HAVING SUM(answer_value)>13 AND SUM(answer_value)<19
+    UNION
+    SELECT SUM(answer_value), 'Severe depression' AS 'Tipo de depresion', 'NA' AS 'Ansiedad psiquica', 'NA' AS 'Ansiedad somatica'
+    FROM questions JOIN test
+    ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+    HAVING SUM(answer_value)>18 AND SUM(answer_value)<23 
+    UNION
+    SELECT SUM(answer_value), 'Very severe depression' AS 'Tipo de depresion', 'NA' AS 'Ansiedad psiquica', 'NA' AS 'Ansiedad somatica'
+    FROM questions JOIN test
+    ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id AND test_instance.instance_id = in_instance_id
+    HAVING SUM(answer_value)>22 ;
+ELSEIF in_test_id = 2 THEN
+    SELECT Total, Depression, Psychic, Somatic
+    FROM (SELECT test_instance.instance_id AS ID, SUM(answer_value) as Total, 'NA' as Depression
+    FROM questions JOIN test ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id and test_instance.instance_id = in_instance_id) A
+
+    JOIN (SELECT test_instance.instance_id AS ID, SUM(answer_value) AS Somatic
+    FROM questions JOIN test ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id and test_instance.instance_id = in_instance_id AND answer.question_id IN(24,25,26,27,28,29,30)) B
+
+    ON A.ID= B.ID
+
+    JOIN(SELECT test_instance.instance_id AS ID, SUM(answer_value) AS Psychic
+    FROM questions JOIN test ON questions.test_id = test.test_id
+    JOIN test_instance ON test_instance.test_id = test.test_id
+    JOIN answer ON answer.instance_id = test_instance.instance_id
+    WHERE answer.question_id = questions.question_id and test_instance.instance_id = in_instance_id AND answer.question_id IN(18,19,20,21,22,23,31)) C
+
+    ON B.ID = C.ID ;
+
+END IF;
+
+
 $$ DELIMITER
 
 
