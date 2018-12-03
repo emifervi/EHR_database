@@ -1,0 +1,114 @@
+BEGIN;
+
+CREATE TABLE patient (
+ 	patient_id INT AUTO_INCREMENT,
+ 	first_name VARCHAR(20) NOT NULL,
+ 	last_name VARCHAR(20) NOT NULL,
+ 	sex CHAR(1) NOT NULL,
+ 	rfc VARCHAR (13) NULL,
+	phone VARCHAR(15) NOT NULL,
+ 	city VARCHAR(20) NOT NULL,
+  	street_address VARCHAR(50) NOT NULL, 
+ 	email VARCHAR(30) NOT NULL,
+ 	date_of_birth DATE NOT NULL,
+ 	PRIMARY KEY(patient_id)
+);
+
+CREATE TABLE doctor (
+	 doctor_id INT,
+ 	 license VARCHAR(8) NOT NULL,
+ 	 first_name VARCHAR (20) NOT NULL,
+	 last_name VARCHAR(20) NOT NULL,
+	 phone VARCHAR(15) NOT NULL,
+	 PRIMARY KEY(doctor_id)
+);
+
+CREATE TABLE consult(
+ 	consult_id INT,
+	patient_id INT NOT NULL,
+	doctor_id INT NOT NULL,
+ 	peea VARCHAR(100) NOT NULL,
+	consult_schedule CHAR(5) NOT NULL,
+	consult_date DATE,
+	PRIMARY KEY(consult_id),
+	FOREIGN KEY(patient_id) REFERENCES patient(patient_id),
+	FOREIGN KEY(doctor_id) REFERENCES doctor(doctor_id)
+);
+
+CREATE TABLE disease_catalog(
+	disease_catalog_id INT,
+	icd10 CHAR(7),
+  	icd9 CHAR(9),
+	frequent_diagnostic CHAR(1),
+	description VARCHAR(150),
+	PRIMARY KEY (disease_catalog_id)
+);
+
+CREATE TABLE diagnostic(
+	consult_id INT,
+  	disease_catalog_id INT,
+	PRIMARY KEY (consult_id, disease_catalog_id),
+  	FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
+  	FOREIGN KEY (disease_catalog_id) REFERENCES disease_catalog(disease_catalog_id)
+);
+
+CREATE TABLE test(
+	test_id INT,
+	test_name VARCHAR(40) NOT NULL,
+	PRIMARY KEY (test_id)
+);
+
+CREATE TABLE questions(
+	question_id INT,
+  	test_id INT,
+	question VARCHAR(50) NOT NULL,
+	PRIMARY KEY (question_id),
+  	FOREIGN KEY (test_id) REFERENCES test(test_id)
+);
+
+CREATE TABLE test_instance(
+	instance_id INT,
+  	test_id INT,
+	consult_id INT,
+	result_description VARCHAR(30) NOT NULL,
+	result INT NOT NULL,
+	PRIMARY KEY (instance_id),
+  	FOREIGN KEY (test_id) REFERENCES test(test_id),
+	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
+);
+
+CREATE TABLE answer(
+	answer_id INT,
+	question_id INT,
+	instance_id INT,
+	answer_value INT NOT NULL,
+	PRIMARY KEY (answer_id),
+	FOREIGN KEY (instance_id) REFERENCES test_instance(instance_id),
+	FOREIGN KEY (question_id) REFERENCES questions(question_id)
+);
+
+CREATE TABLE prescription(
+    prescription_id INT,
+	consult_id INT,
+    PRIMARY KEY (prescription_id),
+	FOREIGN KEY (consult_id) REFERENCES consult(consult_id)
+);
+
+CREATE TABLE medicine(
+    medicine_id INT,
+    medicine_name VARCHAR(15) NOT NULL,
+    ingredient VARCHAR(15) NOT NULL,
+  	dose VARCHAR(8) NOT NULL,
+    PRIMARY KEY (medicine_id)
+);
+
+CREATE TABLE recipe(
+	medicine_id INT,
+	prescription_id INT,
+	instructions VARCHAR(40),
+	PRIMARY KEY (medicine_id, prescription_id),
+	FOREIGN KEY (medicine_id) REFERENCES medicine(medicine_id),
+	FOREIGN KEY (prescription_id) REFERENCES prescription(prescription_id)
+);
+
+COMMIT;
